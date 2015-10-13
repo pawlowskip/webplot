@@ -1,0 +1,31 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+
+GET     /                           controllers.AppController.index
+GET     /advanced                   controllers.AppController.advancedUser
+GET     /files                      controllers.AppController.filesPage
+
+POST    /graph                      controllers.AppController.drawSinglePlot
+POST    /generateProject            controllers.AppController.generateProject
+GET     /getProject                 controllers.AppController.getProject
+
+POST    /upload                     controllers.AppController.upload
+GET     /getFiles                   controllers.AppController.userFiles
+GET     /deleteFile                 controllers.AppController.deleteFile(file)
+GET     /downloadFile               controllers.AppController.downloadFile(file)
+
+GET     /getProjects                controllers.AppController.getUserProjects
+POST    /saveProject                controllers.AppController.saveProject
+
+GET     /login                      controllers.AuthenticationController.login(mode = "login", error = "")
+GET     /logout                     controllers.AuthenticationController.logout
+POST    /auth                       controllers.AuthenticationController.authenticateRequest
+POST    /register                   controllers.AuthenticationController.registerRequest
+GET     /logoutRequest              controllers.AuthenticationController.logoutRequest
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+

@@ -1,0 +1,21 @@
+@(axisName: String)(implicit flash:Flash, messages: Messages )
+<div id="axis-description-@(axisName)">
+    <label for="@(axisName)-bounds">@(axisName.toUpperCase) axis:</label>
+    <input id="@(axisName)-label" ng-model="plt.graphs[$index].@(axisName)Axis.label" class="form-control input-sm" type="text" placeholder="Label">
+    <div id="@(axisName)-bounds" class="row">
+        <div class="col-xs-6">
+            <input ng-model="plt.graphs[$index].@(axisName)Axis.fromTo.from" id="@(axisName)-from" type="text" class="form-control input-sm" placeholder="from">
+        </div>
+        <div class="col-xs-6">
+            <input ng-model="plt.graphs[$index].@(axisName)Axis.fromTo.to" id="@(axisName)-to" type="text" class="form-control input-sm" placeholder="to">
+        </div>
+    </div>
+    <div class="checkbox" id="@(axisName)-logscale">
+        <label class="checkbox">
+            <input ng-model="plt.graphs[$index].@(axisName)Axis.isLogScale" checked="checked" type="checkbox" value="">
+            <span class="checkbox-label">Logscale</span>
+        </label>
+    </div>
+
+</div>
+

@@ -1,0 +1,635 @@
+(->
+
+    project = (name, graphs, pages, author) ->
+        name: name
+        graphs: graphs
+        pages: pages
+        author: author
+
+    graphRef = (id, x, y, width, height) ->
+        graphId: id
+        x: x
+        y: y
+        width: width
+        height: height
+
+    page = (title, titleSize, width, height, fontName, fontSize, terminal, url, graphRefs) ->
+        title: title
+        titleSize: titleSize
+        width: width
+        height: height
+        font:
+            name: fontName
+            size: fontSize
+        terminal: terminal
+        url: url
+        graphRefs: graphRefs
+
+    plot = (label, plotDataType, dataFun, dataFile, plotType, using, patternType, fillType, lineType, pointType, lineWidth, pointSize, color) ->
+            label: label
+            plotDataType: plotDataType
+            dataFun: dataFun
+            dataFile: dataFile
+            plotType: plotType
+            using: using
+            patternType: patternType
+            fillType: fillType
+            lineType: lineType
+            pointType: pointType
+            lineWidth: lineWidth
+            pointSize: pointSize
+            color: color
+
+    axis = (name, label, from, to, isLogScale) ->
+        name: name
+        label: label
+        fromTo:
+            from: from
+            to: to
+        isLogScale: isLogScale
+
+    graph = (title, graphType, xAxis, yAxis, zAxis,  viewX, viewY, samplesX, samplesY, samplesZ, gridWidth, gridType,
+            isUsed, place, horiPos, vertPos, adjust, box, width, height, posX, posY, contourFontSize,
+            contourLevels, histogramType, histogramGap, histogramBoxWidth, histogramBorderType1, histogramBorderType2,
+            histogramBorderColor, palette, plots) ->
+        title: title
+        graphType: graphType
+        xAxis: xAxis
+        yAxis: yAxis
+        zAxis: zAxis
+        view:
+            viewX: viewX
+            viewY: viewY
+        samples:
+            samplesX: samplesX
+            samplesY: samplesY
+            samplesZ: samplesZ
+        grid:
+            gridWidth: gridWidth
+            gridType: gridType
+        legend:
+            isUsed: isUsed
+            place: place
+            horiPos: horiPos
+            vertPos: vertPos
+            adjust: adjust
+            box: box
+        width: width
+        height: height
+        position:
+            posX: posX
+            posY: posY
+        contourFontSize: contourFontSize
+        contourLevels: contourLevels
+        histogramType: histogramType
+        histogramGap: histogramGap
+        histogramBoxWidth: histogramBoxWidth
+        histogramBorder:
+            type: [histogramBorderType1, histogramBorderType2]
+            color: histogramBorderColor
+        palette: palette
+        plots: plots
+
+
+    defColor = () => 'rgb(' + random(0, 255) + ',' + random(0, 255) + ',' +  random(0, 255) + ')'
+
+    defaultAxis = (type) -> axis(type, type, '0', '1', false)
+
+    defaultPlot = () -> plot('Label', 'f', 'x*x', '', 'lines', '', "1", "x1", "1", "1", "1", "1", defColor())
+
+    defaultProject = (graphs) -> project('untitled', graphs, [defaultPage()], 'author')
+
+    emptyProject = () -> (graphs) -> project('', graphs, [defaultPage()], 'author')
+
+    defaultPage = () -> page("", '12', '500', '600', 'Cambria', '12', 'svg', 'url', [])
+
+    defaultGraph = () -> graph('abc', '2D', defaultAxis("x"), defaultAxis("y"), defaultAxis("z"),
+                            '45', '45', '30', '30', '30', '0.5', 'x y', 'on', 'inside', 'left', 'center', 'horizontal', 'box', '1.0', '1.0',
+                            '0.0', '0.0', '0.7', '20', 'cluster', '1', '0.9', 'solid', 'border', defColor(),
+                            [defColor(), defColor()], [defaultPlot()])
+
+    createSinglePage = (graphs, width, height) -> page("", '10', width, height, 'Cambria', '12', 'svg', 'url', graphs)
+
+    refreshUI = () ->
+                    run = () ->
+                         $('.selectpicker').selectpicker({size: 5})
+                         $('[data-toggle="popover"]').popover()
+                    setTimeout(run, 10)
+
+    random = (from, to) -> Math.floor(Math.random() * (to - from) ) + from
+
+    goToGraph = (idx) ->
+                    $('#plot-pagination a[href="#tab-' + (idx) + '"]').tab('show')
+
+    goToPage = (idx) ->
+                    $('#page-pagination a[href="#tab-page' + (idx) + '"]').tab('show')
+
+    Plotter = ($scope, $http, $q) ->
+
+        @graphHeaders = {'Accept': 'image/svg+xml', 'Content-Type': 'image/svg+xml'}
+        @projectHeaders = {'Accept': 'application/zip', 'Content-Type': 'application/zip'}
+        @modalFileView = undefined
+        @sendMessage = (x)=> alert (x)
+
+        ##@selectedPage = 'Page 1'
+
+        @graphs = []
+        @project = undefined
+        @projectList = [emptyProject()]
+        @files = []
+
+        @getNumber = (n) => [1..n]
+
+        @addColor = (grId) =>
+            @graphs[grId].palette.push(defColor())
+
+        @removeColor = (graphIndex, colorIndex) =>
+            if @graphs[graphIndex].palette.length > 2
+                array = @graphs[graphIndex].palette
+                @graphs[graphIndex].palette = (x for x in array when x != array[colorIndex])
+
+        @changeGraphType = (graphIndex, typ) =>
+            if typ == 'HIST'
+                for index in [0..(@graphs[graphIndex].plots.length-1)]
+                    do =>
+                        @graphs[graphIndex].plots[index].plotDataType = 'd'
+            @graphs[graphIndex].graphType = typ
+
+        @changePlotType = (graphIdx, plotIdx, plotType) => @graphs[graphIdx].plots[plotIdx].plotType = plotType
+
+        @changePlotDataType = (graphIdx, plotIdx, plotDataType) => @graphs[graphIdx].plots[plotIdx].plotDataType = plotDataType
+
+        @newPlotInGraph = (index) =>
+                                @graphs[index].plots.push(defaultPlot())
+                                ##$('#plotPanel' + index).children().last().find('.selectpicker').selectpicker({size: 5})
+                                refreshUI()
+
+
+        @removePlotFromGraph = (plotIdx, graphIdx) =>
+                                                   array = @graphs[graphIdx].plots
+                                                   @graphs[graphIdx].plots = (x for x in array when x != array[plotIdx])
+
+        @newGraph = () =>
+                       @graphs.push(defaultGraph())
+                       idx = (@graphs.length - 1)
+                       run = () ->
+                            goToGraph(idx)
+                       setTimeout(run, 20)
+                       refreshUI()
+
+        @removeGraph = (index) =>
+                            total = @graphs.length
+                            if total > 1
+                                array = @graphs
+                                @graphs = (x for x in array when x != array[index])
+                                if total - 1 == index
+                                    run = () ->
+                                       goToGraph(index - 1)
+                                    setTimeout(run, 20)
+
+        @newPage = () =>
+                               @project.pages.push(defaultPage())
+                               idx = (@project.pages.length - 1)
+                               run = () =>
+                                    goToPage(idx)
+                                    refreshUI()
+                               setTimeout(run, 20)
+                               run2 = () =>
+                                    @calculatePage(idx)
+                               setTimeout(run2, 30)
+
+
+        @deletePage = (index) =>
+                            total = @project.pages.length
+                            if total > 1
+                                array = @project.pages
+                                @project.pages = (x for x in array when x != array[index])
+
+                                run = () ->
+                                    if total - 1 == index
+                                        goToPage(index - 1)
+                                    else
+                                        goToPage(index)
+                                setTimeout(run, 20)
+
+        ###@editDataSet = (graph, plot) =>
+                            $('#plot-data-set-modal').val( @graphs[graph].plots[plot].dataSet )
+                            @modalPlot = plot
+                            @modalGraph = graph
+        ###
+
+        @checkLineWidth = (text) => ( /^\d*$/.test(text) &&  parseInt(text) >= 0 )
+        @checkPointSize = (text) => ( /^\d*(\.\d*)?$/.test(text) && parseFloat(text) >= 0 )
+
+        @confirmDataChange = () => @graphs[@modalGraph].plots[@modalPlot].dataSet = $('#plot-data-set-modal').val()
+
+        @drawGraph = (index) =>
+                        @requestGraph(index)
+                            .then(
+                                (data) =>
+                                    img = new Image()
+                                    canvas = $("#plot-svg-" + index)[0]
+                                    ctx = canvas.getContext('2d')
+                                    ###
+                                    try new XMLSerializer().serializeToString(data)
+                                    catch e then alert e
+                                    #####btoa(xml
+                                    ##serializer = new XMLSerializer
+                                    ##alert("1")
+                                    xml = data
+                                    img.src  = 'data:image/svg+xml;utf8,' + xml
+                                    ctx.clearRect(0, 0, canvas.width, canvas.height)
+                                    ##run = () => ctx.drawImage(img,0,0)
+                                    ##setTimeout(run, 20)
+                                    ctx.drawImage(img,0,0)
+                                ,
+                                (error) =>
+                                    alert "Unable to create graph" + error + "\n\n"
+                                 )
+
+        @resizeCanvas = (width, height, id) ->
+            canvas = $('#plot-svg-' + id)
+            canvas.attr('width', width)
+            canvas.attr('height', height)
+
+
+        @requestGraph = (id) =>
+            deferred = $q.defer()
+            ##graph = $.extend(true, {}, @graphs[id])
+            tempProject = defaultProject([@graphs[id]])
+            tempPage = defaultPage()
+            tempGraphRef = graphRef(0, 0.0, 0.0, 1.0, 1.0)
+            tempPage.graphRefs.push(tempGraphRef)
+
+            canvas = $('#plot-svg-' + id)
+            container = $(canvas).parent()
+            width =  container.width() - 20
+            height = container.height() - 20
+
+            tempPage.width = '' + width
+            tempPage.height = '' + height
+            tempProject.pages = [tempPage]
+
+
+            @resizeCanvas(width, height, id)
+            $http.post('/graph', tempProject)
+                 .success((data, status, headers) =>
+                                deferred.resolve(data))
+                 .error((data, status, headers) =>
+                                deferred.reject(data))
+
+            deferred.promise
+
+        @refreshFiles =
+                    (data, status) =>
+                        @files = data
+                        $scope.$apply()
+
+        @refreshProjects = (data, status) =>
+                                empty = (x for x in @projectList when x.name == '')[0]
+                                @projectList = data
+                                @projectList.push(empty)
+                                $scope.$apply()
+
+        $.get '/getFiles', @refreshFiles
+
+        $.get '/getProjects', @refreshProjects
+
+        refreshUI()
+
+
+        ## hidden pagination
+        run = () => $('#pagination').removeAttr("hidden")
+        setTimeout(run, 20)
+
+        requestProjectGen = () =>
+                                deferred = $q.defer()
+                                $http.post('/generateProject', @project)
+                                                 .success((data, status, headers) =>
+                                                                deferred.resolve(data))
+                                                 .error((data, status, headers) =>
+                                                                deferred.reject(data))
+                                deferred.promise
+
+        str2bytes = (str) =>
+            bytes = new Uint8Array(str.length)
+            for i in [0..(str.length - 1)]
+                do () ->
+                    bytes[i] = str.charCodeAt(i)
+            bytes
+
+
+        @downloadFile = (f) =>
+                        ref = '/getProject'
+                        $('#download').attr({target: '_blank', href  : ref})
+                        $('#download')[0].click()
+
+        @generateProject = () =>
+                            requestProjectGen()
+                            .then(
+                                (data) =>
+                                    ###alert(data.length)
+                                    blob = new Blob([str2bytes(data)], {type: "application/zip"});
+                                    alert (blob.size)
+                                    saveAs(blob, @project.name + ".zip");
+                                    ###
+                                    @downloadFile()
+                                ,
+                                (error) =>
+                                    alert "Unable to create project" + error + "\n\n"
+                                 )
+
+
+                            ###
+                            res =
+                                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json'}
+                                type: 'POST'
+                                url: "/generateProject"
+                                data: JSON.stringify(@project)
+                                success: (data) => alert(str2bytes(data).length)
+                                error: (xhr,status,error) => alert(status + '' + error)
+
+                            $.ajax(res)
+                            alert ("aa")
+                            ###
+
+        requestProjectSave = () =>
+                                        deferred = $q.defer()
+                                        $http.post('/saveProject', @project)
+                                                         .success((data, status, headers) =>
+                                                                        deferred.resolve(data))
+                                                         .error((data, status, headers) =>
+                                                                        deferred.reject(data))
+                                        deferred.promise
+
+        @saveProject = () =>
+                        requestProjectSave()
+                        .then(
+                            (data) =>
+                                alert "Project saved!"
+                                ##$.get '/getProjects', @refreshProjects
+
+                            ,
+                            (error) =>
+                                alert "Unable to save project" + error + "\n\n"
+                            )
+
+
+        @newProject = () =>
+                    empty = (x for x in @projectList when x.name == '')[0]
+                    $("#project-selector").val(empty)
+                    $scope.$apply()
+
+        @removeProject = () =>
+
+        changeProject = (projectName) =>
+                             list = @projectList
+                             selectedProject = (x for x in list when x.name == projectName)[0]
+                             @project = selectedProject
+                             @graphs = @project.graphs
+                             @selectedPage = 'Page 1'
+                             refreshUI()
+
+        @changeProjectHandler = () =>
+                                    changeProject($scope.item.name)
+
+        @newProject()
+
+        @clearGraphRefs = (index) =>
+                            draggables = $('.draggable' + index)
+                            originPos = $('#origin' + index).offset()
+                            originX = originPos.left
+                            originY = originPos.top
+                            for d in draggables
+                                do () =>
+                                    @project.pages[index].graphRefs = []
+                                    d.removeAttribute('drop-w')
+                                    d.removeAttribute('drop-h')
+                                    d.removeAttribute('drop-x')
+                                    d.removeAttribute('drop-y')
+                                    d.style.width = 50 + 'px'
+                                    d.style.height = 50 + 'px'
+                                    x = 0
+                                    y = 0
+                                    d.setAttribute('data-x', x)
+                                    d.setAttribute('data-y', y)
+                                    d.style.webkitTransform = d.style.transform = 'translate(' + x + 'px,' + y + 'px)'
+
+
+
+        @calculatePage = (index) =>
+                            p = @project.pages[index]
+                            height = p.height
+                            width = p.width
+                            ratio = height/width
+                            pageIn = $('#page-in-' + index)
+
+                            ##container = document.getElementById('page-' + index)
+                            containerHeight = @containerH ##parseInt(container.offsetHeight)
+                            containerWidth = @containerW ##arseInt(container.offsetWidth)
+
+                            usedHeight = 0
+                            usedWidth = 0
+                            base = 0
+
+                            if containerHeight > containerWidth
+                                base = containerWidth
+                            else base = containerHeight
+
+                            if ratio < 1
+                                usedHeight = Math.floor(base*ratio)
+                                usedWidth = Math.floor(base)
+                                pageIn.css('width', '' + usedWidth + 'px' )
+                                pageIn.css('height', '' + usedHeight + 'px' )
+                            else
+                                usedHeight = Math.floor(base)
+                                usedWidth = Math.floor(base/ratio)
+                                pageIn.css('width', '' + usedWidth + 'px' )
+                                pageIn.css('height', '' + usedHeight + 'px' )
+
+                            baseH = Math.ceil(usedHeight/10)
+                            baseW = Math.ceil(usedWidth/10)
+
+                            position = pageIn.offset()
+
+                            prepareGraphsInPage(index, baseW, baseH, position.left, position.top, baseH, baseW, usedHeight, usedWidth)
+
+                            interact('#page-in-' + index).dropzone(
+                                                                        accept: '.draggable'
+                                                                        overlap: 0.75
+                                                                        ondrop: (event) =>
+                                                                                draggableElement = event.relatedTarget
+                                                                                dropzoneElement = event.target
+                                                                                dropRect = interact.getElementRect(dropzoneElement)
+                                                                                dragRect = interact.getElementRect(draggableElement)
+                                                                                draggableElement.setAttribute('id-in-page', index)
+                                                                                indexGraph = parseInt(draggableElement.querySelector('p').textContent)
+                                                                                posX = (dragRect.left - dropRect.left)/dropRect.width
+                                                                                posY = (dropRect.bottom - dragRect.bottom)/dropRect.height
+                                                                                widt = dragRect.width/dropRect.width
+                                                                                heig = dragRect.height/dropRect.height
+
+                                                                                refs = @project.pages[index].graphRefs
+                                                                                refsOk = (x for x in refs when x.graphId == indexGraph)
+
+                                                                                if refsOk.length == 0
+                                                                                    draggableElement.setAttribute('drop-w', dropRect.width)
+                                                                                    draggableElement.setAttribute('drop-h', dropRect.height)
+                                                                                    draggableElement.setAttribute('drop-x', dropRect.left)
+                                                                                    draggableElement.setAttribute('drop-y', dropRect.bottom)
+                                                                                    ref = graphRef(indexGraph, posX, posY, widt, heig)
+                                                                                    @project.pages[index].graphRefs.push(ref)
+                                                                                else
+                                                                                    ref = refsOk[0]
+                                                                                    ref.x = posX
+                                                                                    ref.y = posY
+
+                                                                        ondragleave: (event) =>
+                                                                                draggableElement = event.relatedTarget
+                                                                                draggableElement.removeAttribute('drop-w')
+                                                                                draggableElement.removeAttribute('drop-h')
+                                                                                draggableElement.removeAttribute('drop-x')
+                                                                                draggableElement.removeAttribute('drop-y')
+                                                                                indexGraph = parseInt(draggableElement.querySelector('p').textContent)
+                                                                                array = @project.pages[index].graphRefs
+                                                                                @project.pages[index].graphRefs = (x for x in array when x.graphId != indexGraph)
+                                                                    )
+
+
+
+        prepareGraphsInPage = (pageIdx, snapX, snapY, relX, relY, baseHeight, baseWidth, height, width) =>
+                                myTargets = []
+                                for i in [0..7]
+                                    do (i) ->
+                                        factor = i/10
+                                        xFun = (x, y) ->
+                                            x: relX + Math.round(factor*width)
+                                            y: y
+                                            range: 40
+                                        yFun = (x, y) ->
+                                            x: x
+                                            y: relY + Math.round(factor*height)
+                                            range: 40
+                                        myTargets.push(xFun)
+                                        myTargets.push(yFun)
+
+                                draggables = $('.draggable' + pageIdx)
+                                originPos = $('#origin' + pageIdx).offset()
+                                originX = originPos.left
+                                originY = originPos.top
+
+                                refs = @project.pages[pageIdx].graphRefs
+                                for d in draggables
+                                    do (d) =>
+                                           id = parseInt(d.querySelector('p').textContent)
+                                           ref = (x for x in refs when x.graphId == id)
+                                           if ref.length != 0
+                                                d.setAttribute('drop-w', width)
+                                                d.setAttribute('drop-h', height)
+                                                d.setAttribute('drop-x', relX)
+                                                d.setAttribute('drop-y', relY)
+                                                d.style.width = ref[0].width*width + 'px'
+                                                d.style.height = ref[0].height*height + 'px'
+                                                x = relX - originX + (ref[0].x)*width
+                                                y = relY - originY - parseInt(d.style.height) + (1.0 - ref[0].y)*height
+                                                d.setAttribute('data-x', x)
+                                                d.setAttribute('data-y', y)
+                                                d.style.webkitTransform = d.style.transform = 'translate(' + x + 'px,' + y + 'px)'
+
+                                interact('.draggable' + pageIdx).draggable(
+                                                    restrict:
+                                                        restriction: "#layout-page"
+                                                        endOnly: true
+                                                        elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+                                                    onmove: dragMoveListener
+                                                    snap:
+                                                        ##targets: [interact.createSnapGrid({ x: snapX, y: snapY })]
+                                                        targets: myTargets
+                                                        range: Infinity
+                                                        relativePoints: [ { x: 0, y: 0 }, {x: 1, y: 1}, {x: 1, y: 0}, {x: 0, y: 1}, {x: 0.5, y: 0.5} ]
+                                                    onend: (event) ->
+                                                                ##textEl = event.target.querySelector('p')
+                                                                ##textEl && (textEl.textContent = 'pos' + event.target.getAttribute('data-x'))
+                                        ).resizable(
+                                                    edges: { left: false, right: true, bottom: true, top: false }
+                                                    restrict:
+                                                        restriction: "#layout-page"
+                                                    snap:
+                                                        targets: myTargets
+                                                        range: Infinity
+                                                        relativePoints: [ { x: 0, y: 0 }, {x: 1, y: 1}, {x: 1, y: 0}, {x: 0, y: 1}, {x: 0.5, y: 0.5} ]
+                                        ).on('resizemove', resizeListener)
+                                        .on('resizeend', (event) =>
+                                                                            target = event.target
+                                                                            dragRect = interact.getElementRect(target)
+                                                                            dropW = target.getAttribute('drop-w')
+                                                                            dropH = target.getAttribute('drop-h')
+                                                                            dropX = target.getAttribute('drop-x')
+                                                                            dropY = target.getAttribute('drop-y')
+
+                                                                            if dropW != null and dropH != null
+                                                                                indexGraph = parseInt(target.querySelector('p').textContent)
+                                                                                posY = (dropY - dragRect.bottom)/dropH
+                                                                                widt = dragRect.width/dropW
+                                                                                heig = dragRect.height/dropH
+                                                                                refs = @project.pages[pageIdx].graphRefs
+                                                                                ref = (x for x in refs when x.graphId == indexGraph)
+                                                                                ref[0].width = widt
+                                                                                ref[0].height = heig
+                                                                                ref[0].y = posY
+                                        )
+
+
+
+        dragMoveListener = (event) ->
+                                target = event.target
+                                x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+                                y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+                                target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
+                                target.setAttribute('data-x', x)
+                                target.setAttribute('data-y', y)
+
+        resizeListener = (event) ->
+                                target = event.target
+                                x = (parseFloat(target.getAttribute('data-x')) || 0)
+                                y = (parseFloat(target.getAttribute('data-y')) || 0)
+
+                                target.style.width  = event.rect.width + 'px'
+                                target.style.height = event.rect.height + 'px'
+
+                                ## translate when resizing from top or left edges
+                                x += event.deltaRect.left
+                                y += event.deltaRect.top
+
+                                target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px,' + y + 'px)'
+                                target.setAttribute('data-x', x);
+                                target.setAttribute('data-y', y);
+
+
+        @isCalculated = false
+        @containerW = 0
+        @containerH = 0
+
+        @calculateAllPages = () =>
+            run1 = () =>
+                container = document.getElementById('page-' + 0)
+                @containerH = parseInt(container.offsetHeight)
+                @containerW = parseInt(container.offsetWidth)
+            setTimeout(run1, 200)
+            if @isCalculated == false
+                run2 = () =>
+                    for p in [0..(@project.pages.length-1)]
+                        do (p) => @calculatePage(p)
+                setTimeout(run2, 210)
+                @isCalculated = true
+
+
+        window.dragMoveListener = dragMoveListener
+
+        return
+
+
+    angular
+        .module('App')
+        .controller('Plotter' , Plotter)
+)()
