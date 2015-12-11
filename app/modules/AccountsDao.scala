@@ -11,4 +11,5 @@ trait AccountsDao {
   def checkUsernameAvailability(username: String): Future[Boolean]
   def saveOrUpdateProject(project: Project): Future[Unit]
   def getProjects(username: String): Future[List[Project]]
+  def deleteProject(username: String, projectName: String): Future[Unit]
 }

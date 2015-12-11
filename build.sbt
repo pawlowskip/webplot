@@ -33,5 +33,6 @@ ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
 
 routesGenerator := InjectedRoutesGenerator
 
+scalacOptions += "-feature"
 
 fork in run := true

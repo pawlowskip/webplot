@@ -1,7 +1,7 @@
 package models
 
 import util.Parser
-
+import scala.language.postfixOps
 
 case class Page(
   title: String,

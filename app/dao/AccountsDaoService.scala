@@ -14,20 +14,21 @@ import models.Account._
 import play.modules.reactivemongo.json._
 import play.modules.reactivemongo.json.collection._
 
+case class NoSuchUserException(message: String) extends Exception(message)
+case class NoSuchProjectException(message: String) extends Exception(message)
+
 class AccountsDaoService(reactiveMongoApi: ReactiveMongoApi) extends AccountsDao{
 
   private def accounts: JSONCollection = reactiveMongoApi.db.collection[JSONCollection]("accounts")
   private def projects: JSONCollection = reactiveMongoApi.db.collection[JSONCollection]("projects")
 
-  class NoSuchUserException(message: String) extends Exception(message)
-
-  def createAccount(account: Account): Future[Unit] =
+  override def createAccount(account: Account): Future[Unit] =
     accounts.insert(account).map {
       lastError =>
-        Logger.info(s"Account successfully inserted with LastError: $lastError")
+        Logger.debug(s"Account successfully inserted with LastError: $lastError")
     }
 
-  def findByUsername(username: String): Future[Option[Account]] = {
+  override def findByUsername(username: String): Future[Option[Account]] = {
     // let's do our query
     val cursor: Cursor[Account] = accounts.
       // find all people with username `username`
@@ -45,7 +46,7 @@ class AccountsDaoService(reactiveMongoApi: ReactiveMongoApi) extends AccountsDao
    * @param username
    * @return true if available false otherwise
    */
-  def checkUsernameAvailability(username: String): Future[Boolean] = {
+  override def checkUsernameAvailability(username: String): Future[Boolean] = {
     accounts.count(Some(Json.obj("username" -> username))).map{
       case 0 => true
       case n => false
@@ -57,41 +58,46 @@ class AccountsDaoService(reactiveMongoApi: ReactiveMongoApi) extends AccountsDao
    * @param username
    * @return
    */
-  def getProjects(username: String): Future[List[Project]] = {
+  override def getProjects(username: String): Future[List[Project]] = {
     projects.find(Json.obj("author" -> username))
             .cursor[Project]()
             .collect[List]()
   }
 
-  /**
-   * saves project in db
-   * @param project - to save
-   */
-  def saveOrUpdateProject(project: Project) = {
-    val isUserExists: Future[Boolean] = checkUsernameAvailability(project.author).map( !_ )
-    val query = Json.obj("author" -> project.author, "name" -> project.name)
-    lazy val isProjectExists: Future[Boolean] = projects.count(Some(query)).map{
+  def isUserExists(username: String) = checkUsernameAvailability(username).map( !_ )
+  def isProjectExists(projectName: String, userName: String) =
+    projects.count(Some(Json.obj("author" -> userName, "name" -> projectName))).map{
       case 0 => false
       case _ => true
     }
 
-    isUserExists.filter(_ == true).map{
-      x => isProjectExists.map{
+  /**
+   * saves project in db
+   * @param project - to save
+   */
+  override def saveOrUpdateProject(project: Project) = {
+    val query = Json.obj("author" -> project.author, "name" -> project.name)
+    lazy val isProjectExistsLazy: Future[Boolean] = isProjectExists(project.name, project.author)
+
+    isUserExists(project.author).filter(_ == true).map{
+      x => isProjectExistsLazy.map{
         case true  => projects.update(query, project); ()
         case false => projects.insert(project); ()
       }
     }
-//
-//    isUserExists.onComplete{
-//      case Success(true) => println("exists")
-//      case Success(false) => println("doesn't")
-//      case Failure(_) => println("fail")
-//    }
-//    val p = Promise[Unit]()
-//    isUserExists.onComplete{
-//      case Success(true)  => projects.insert(project); p.complete(Success(()))
-//      case _ => p.complete(Failure())
-//    }
-//    p.future
+  }
+
+  override def deleteProject(username: String, projectName: String): Future[Unit] = {
+    val query = Json.obj("author" -> username, "name" ->projectName)
+    lazy val isProjectExistsLazy: Future[Boolean] = isProjectExists(projectName, username)
+
+    isUserExists(username) map {
+      case true  =>
+        isProjectExistsLazy.map{
+          case true  => projects.remove(query); ()
+          case false => Future.failed(new NoSuchProjectException(s"Project: $projectName doesn't exists!"))
+        }
+      case false => Future.failed(new NoSuchUserException(s"User: $username doesn't exists!"))
+    }
   }
 }

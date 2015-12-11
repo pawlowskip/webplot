@@ -136,7 +136,7 @@ private [gnuplot] object ScriptGenerator {
     }
   }
 
-  private def setParametrization(params: List[(String, Double, Double)]): String =
+  private def setParametrization(params: List[(String, String, String)]): String =
     params match {
       case Nil => ""
       case _ => {
@@ -166,14 +166,14 @@ private [gnuplot] object ScriptGenerator {
     case (size, gridType) =>  s"""set grid layerdefault linewidth $size $gridType"""
   }
 
-  private def range(name: String, from: Double, to: Double) =
+  private def range(name: String, from: String, to: String) =
     s"set ${name}range [$from:$to]"
 
   private def terminal(page: Page): String = page.terminal match {
     case "svg" => s"set term svg size ${page.width},${page.height} fname '${page.font._1}' fsize ${page.font._2}"
-    case "png" => s"set terminal pngcairo size ${page.width},${page.height} enhanced font '${page.font._1},${page.font._2}'"
+    case "png" => s"set terminal png size ${page.width},${page.height} enhanced font '${page.font._1},${page.font._2}'"
     case "eps" => s"set terminal postscript eps size ${page.width/100},${page.height/100} font '${page.font._1},${page.font._2}'"
-    case "pdf" => s"set terminal pdf size ${page.width/100},${page.height/100} font '${page.font._1},${page.font._2}'"
+    case "pdf" => s"set terminal pdfcairo size ${page.width/100},${page.height/100} font '${page.font._1},${page.font._2}'"
     case _ => ""
   }
 

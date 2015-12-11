@@ -1,5 +1,6 @@
 package models
 
+import scala.language.postfixOps
 
 case class Project(
   name: String,

@@ -5,6 +5,7 @@ import util.{Parser}
 import GraphType.GraphType
 
 import scala.util.Try
+import scala.language.postfixOps
 
 case class Graph(
                   title: String,

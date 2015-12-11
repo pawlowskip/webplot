@@ -9,18 +9,28 @@
     <div id="filesManagement">
         <div class="panel panel-primary">
             <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-1">
+                    </div>
+                    <div class="col-sm-3">
                         <span class="btn btn-success fileinput-button">
-                    <i class="glyphicon glyphicon-plus"></i>
-                    <span>Select files to upload...</span>
-                        <input id="fileupload" type="file" name="files[]" multiple ng-click="filesCtrl.resetFileProgressBar()">
-                    </span>
+                            <i class="glyphicon glyphicon-plus"></i>
+                            <span>Select files to upload...</span>
+                            <input id="fileupload" type="file" name="files[]" multiple ng-click="filesCtrl.resetFileProgressBar()">
+                        </span>
+                    </div>
+                    <div class="col-sm-3">
+                        <button class="btn btn-danger" data-toggle="modal" data-target="#fileFormatInfo">Tip! File format info</button>
+                    </div>
+                </div>
+
                 <br>
                 <br>
+
                 <!-- The global progress bar -->
                 <div id="progress" class="progress">
                     <div class="progress-bar progress-bar-success"></div>
                 </div>
-
 
                 <!-- The container for the uploaded files -->
                 <div class="full-page-files">
@@ -53,6 +63,36 @@
                 <div class="modal-footer">
                     <button ng-click="filesCtrl.confirmDataChange()" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button ng-click="filesCtrl.downloadFile(filesCtrl.modalFileView)" type="button" class="btn btn-default" data-dismiss="modal">Download</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--Modal-->
+    <div id="fileFormatInfo" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-body">
+                    <textarea class="form-control" rows="15" readonly>Program accepts text files, that data columns are separated with white characters.
+                        Example:
+                        ﻿#   X         Y1         Y2         Y3
+                        -1.0000    0.0000     0.0000     1.0000
+                        -0.9000    0.5700     1.1769     0.7150
+                        -0.8000    1.0800     1.4400     0.4600
+
+                        Data for histograms should have a labels in first line.
+                        Example:
+                        Year    A	    B	    C
+                        1975    0.5     9.0	    3
+                        1980    2.0     12.0	4
+                        1985    2.5     10.1	5
+                    </textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
 

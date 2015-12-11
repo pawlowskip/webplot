@@ -6,7 +6,7 @@ import java.nio.file.{NoSuchFileException, Paths}
 
 import models.{Page, DataFile, Account, Project}
 import scala.concurrent.{Future, Promise}
-import play.api.libs.concurrent.Execution.Implicits._
+import util.MyExecutionContext._
 import scala.util.{Try, Success, Failure}
 import scala.io.Source
 
@@ -20,10 +20,6 @@ object Files {
   rootOutputCatalog.mkdir()
   rootFilesCatalog.mkdir()
   println( s"created users directory ${rootFilesCatalog.getAbsolutePath}" )
-
-  import scala.collection.mutable.HashMap
-  val scriptCache = HashMap.empty[String, File]
-  val outputCache = HashMap.empty[String, List[File]]
 
   def userCatalog(account: Account) = new File(rootFilesCatalog, account.username)
 
@@ -83,19 +79,10 @@ object Files {
   }
 
   def getUserScriptFile(usersLogin: String): File = {
-    scriptCache.getOrElse(usersLogin, {
-      val file = new File(rootScriptCatalog, s"${usersLogin}_script.gpl")
-      scriptCache += (usersLogin -> file)
-      file
-    })
+    new File(rootScriptCatalog, s"${usersLogin}_script.gpl")
   }
 
   def getUserOutputFile(login: String, extension: String): File = {
-//    outputCache.getOrElse(login, {
-//        outputCache += ( login -> Nil )
-//        Nil
-//      })
-//      .filter( f => getFileExtension(f) == extension )
     new File(rootOutputCatalog, s"${login}_out.${extension}")
   }
 
@@ -132,7 +119,7 @@ object Files {
             graph.copy(plots = newPlots)
           }
         }
-        project.copy( graphs = correctedGraphs  )
+        project.copy(graphs = correctedGraphs)
       }
     }
   }

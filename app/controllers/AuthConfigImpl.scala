@@ -103,7 +103,8 @@ trait AuthConfigImpl extends AuthConfig {
      * Whether use the secure option or not use it in the cookie.
      * Following code is default.
      */
-    cookieSecureOption = play.api.Play.isProd(play.api.Play.current),
+    // you can create self-signed certificate and configure nginx to accept SSL
+    cookieSecureOption = false/*play.api.Play.isProd(play.api.Play.current)*/,
     cookieMaxAge       = Some(sessionTimeoutInSeconds)
   )
 

@@ -7,7 +7,6 @@
         <div>
             <ul class="nav navbar-nav">
                 <li class='@(if(page==0) "active" else "")' ><a href="@routes.AppController.index">Charts</a></li>
-                <li class='@(if(page==1) "active" else "")' ><a href="@routes.AppController.advancedUser">Advanced</a></li>
                 <li class='@(if(page==2) "active" else "")' ><a href="@routes.AppController.filesPage">Files</a></li>
             </ul>
         </div>
@@ -15,11 +14,17 @@
         @if(page != -1 && page != 2) {
             <form class="navbar-form navbar-left" role="search">
                 <label> Project: </label>
-                <select id="project-selector" ng-options="p as p.name for p in plt.projectList" ng-model="item" class="form-control" ng-change="plt.changeProjectHandler()">
+                <select name="project-selector" id="project-selector" class="form-control"
+                        ng-options="option for option in plt.projectSelectList track by option"
+                        ng-model="plt.selectedOption"
+                        ng-change="plt.changeProjectHandler()">
                 </select>
+
+                <!--<select id="project-selector" class="form-control" ng-model="plt.projectSelectList" ng-change="plt.changeProjectHandler()">-->
+                <!--</select>-->
                 <button class="btn btn-default btn-sm" ng-click="plt.saveProject()">Save</button>
-                <button class="btn btn-default btn-sm" ng-click="plt.newProject()">New Project</button>
-                <button class="btn btn-default btn-sm" ng-click="plt.removeProject()">Remove Project</button>
+                <button class="btn btn-default btn-sm" data-toggle="modal" data-target="#newProject" ng-click="plt.newProject()">New Project</button>
+                <button class="btn btn-default btn-sm" data-toggle="modal" data-target="#deleteProject" >Remove Project</button>
             </form>
 
 

@@ -6,6 +6,7 @@ import PlotType.PlotType
 import util.{Parser}
 
 import scala.util.Try
+import scala.language.postfixOps
 
 case class Plot(
                  label: String,
@@ -50,7 +51,7 @@ object Plot{
         (__ \ "fillType").read(Reads.pattern(filledCurvePatternRegex)) and
         (__ \ "lineType").read(parseInt).filter(intervalError(1, 5))(isInInterval(1, 5)) and
         (__ \ "pointType").read(parseInt).filter(intervalError(1, 15))(isInInterval(1, 15)) and
-        (__ \ "lineWidth").read(parseInt).filter(intervalError(1, 5))(isInInterval(1, 5)) and
+        (__ \ "lineWidth").read(parseInt).filter(intervalError(1, 99))(isInInterval(1, 99)) and
         (__ \ "pointSize").read(parseDouble).filter(intervalError(0.0, 10.0))(isInInterval(0.0, 10.0)) and
         (__ \ "color").read( color )
     )(Plot.apply _)

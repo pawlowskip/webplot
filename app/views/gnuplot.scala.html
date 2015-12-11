@@ -6,6 +6,9 @@
 
     <div class="row">
         <div class="tab-content">
+            <div ng-show="!plt.isAnyProjectLoaded()">
+                <h2 class="text-center">Select or create new project.</h2>
+            </div>
             <div ng-repeat="graph in plt.graphs" id="tab-{{$index}}" class="tab-pane fade in {{$index == 0 ? 'active' : ''}}">
                         <div class="col-sm-3">
                             <button ng-click="plt.newPlotInGraph($index)" type="button" class="btn btn-primary btn-block">New Plot</button>
@@ -24,27 +27,27 @@
                                                 <input ng-model="plt.graphs[$parent.$index].plots[$index].label" type="label" class="form-control"  placeholder="Label">
                                                 <div ng-show="plt.graphs[$parent.$index].graphType == '2D'" class="plot-type-bar">
                                                     <ul class="nav nav-pills nav-justified">
-                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'lines' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'lines')" ><img src='@{routes.Assets.versioned("images/icons/ico_lines.png")}'></a></li>
-                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'points' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'points')" ><img src='@{routes.Assets.versioned("images/icons/ico_points.png")}'></a></li>
-                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'linespoints' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'linespoints')" ><img src='@{routes.Assets.versioned("images/icons/ico_linespoints.png")}'></a></li>
-                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'filledcurve' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'filledcurve')" ><img src='@{routes.Assets.versioned("images/icons/ico_filledcurve.png")}'></a></li>
-                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'xerrorbars' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'xerrorbars')" ><img src='@{routes.Assets.versioned("images/icons/ico_xerror.png")}'></a></li>
-                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'yerrorbars' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'yerrorbars')" ><img src='@{routes.Assets.versioned("images/icons/ico_yerror.png")}'></a></li>
-                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'xyerrorbars' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'xyerrorbars')" ><img src='@{routes.Assets.versioned("images/icons/ico_xyerror.png")}'></a></li>
+                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'lines' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'lines')" ><img data-toggle="tooltip" data-placement="top" title="lines" src='@{routes.Assets.versioned("images/icons/ico_lines.png")}'></a></li>
+                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'points' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'points')" ><img data-toggle="tooltip" data-placement="top" title="points" src='@{routes.Assets.versioned("images/icons/ico_points.png")}'></a></li>
+                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'linespoints' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'linespoints')" ><img data-toggle="tooltip" data-placement="top" title="lines and points" src='@{routes.Assets.versioned("images/icons/ico_linespoints.png")}'></a></li>
+                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'filledcurve' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'filledcurve')" ><img data-toggle="tooltip" data-placement="top" title="filled curve" src='@{routes.Assets.versioned("images/icons/ico_filledcurve.png")}'></a></li>
+                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'xerrorbars' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'xerrorbars')" ><img data-toggle="tooltip" data-placement="top" title="x-error bars" src='@{routes.Assets.versioned("images/icons/ico_xerror.png")}'></a></li>
+                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'yerrorbars' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'yerrorbars')" ><img data-toggle="tooltip" data-placement="top" title="y-error bars" src='@{routes.Assets.versioned("images/icons/ico_yerror.png")}'></a></li>
+                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'xyerrorbars' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'xyerrorbars')" ><img data-toggle="tooltip" data-placement="top" title="xy-errorbars" src='@{routes.Assets.versioned("images/icons/ico_xyerror.png")}'></a></li>
                                                     </ul>
                                                 </div>
-                                                <div ng-show="plt.graphs[$parent.$index].graphType == '3D'">
-                                                    <ul class="nav nav-pills">
-                                                        <li ng-class="plt.graphs[$index].graphType == 'lines' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'lines')" >lines</a></li>
-                                                        <li ng-class="plt.graphs[$index].graphType == 'points' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'points')" >points</a></li>
-                                                        <li ng-class="plt.graphs[$index].graphType == 'linespoints' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'linespoints')" >linespoints</a></li>
+                                                <div ng-show="plt.graphs[$parent.$index].graphType == '3D'" class="plot-type-bar">
+                                                    <ul class="nav nav-pills nav-justified">
+                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'lines' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'lines')" ><img data-toggle="tooltip" data-placement="top" title="lines" src='@{routes.Assets.versioned("images/icons/ico_lines.png")}'></a></li>
+                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'points' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'points')" ><img data-toggle="tooltip" data-placement="top" title="points" src='@{routes.Assets.versioned("images/icons/ico_points.png")}'></a></li>
+                                                        <li ng-class="plt.graphs[$parent.$index].plots[$index].plotType == 'linespoints' ? 'active' : '' " ><a data-toggle="pill" ng-click="plt.changePlotType($parent.$index, $index, 'linespoints')" ><img data-toggle="tooltip" data-placement="top" title="lines and points" src='@{routes.Assets.versioned("images/icons/ico_linespoints.png")}'></a></li>
                                                     </ul>
                                                 </div>
 
 
                                                 <ul class="nav nav-pills nav-justified">
                                                     <!--ng-class="{active : plt.graphs[$parent.$index].plots[$index].type === 'd'}"-->
-                                                    <li ng-class="{f:'active', d:''}[plt.graphs[$parent.$index].plots[$index].plotDataType]" ><a data-toggle="pill" ng-click="plt.changePlotDataType($parent.$index, $index, 'f')" >Function</a></li>
+                                                    <li ng-hide="plt.graphs[$parent.$index].plots[$index].plotType.indexOf('error') > -1" ng-class="{f:'active', d:''}[plt.graphs[$parent.$index].plots[$index].plotDataType]" ><a data-toggle="pill" ng-click="plt.changePlotDataType($parent.$index, $index, 'f')" >Function</a></li>
                                                     <li ng-class="{d:'active', f:''}[plt.graphs[$parent.$index].plots[$index].plotDataType]"><a data-toggle="pill" ng-click="plt.changePlotDataType($parent.$index, $index, 'd')" >&nbsp;Data set&nbsp;&nbsp;</a></li>
                                                 </ul>
 
@@ -54,15 +57,80 @@
                                                     </div>
                                                     <div ng-class="{f:'tab-pane', d:'tab-pane active'}[plt.graphs[$parent.$index].plots[$index].plotDataType]">
                                                         <div class="row">
-                                                            <div class="col-xs-8">
-                                                                <select class="selectpicker"  ng-model="plt.graphs[$parent.$index].plots[$index].dataFile" data-width="200px">
-                                                                    <option ng-repeat="file in plt.files">{{file.name}}</option>
+                                                            <div class="col-xs-7">
+                                                                <select class="form-control" ng-model="plt.graphs[$parent.$index].plots[$index].dataFile" data-width="200px">
+                                                                    <option ng-repeat="file in plt.files" value="{{file.name}}">{{file.name}}</option>
                                                                 </select>
                                                             </div>
-                                                            <div class="col-xs-4">
-                                                                <input ng-model="plt.graphs[$parent.$index].plots[$index].using" type="label" class="form-control"  placeholder="using" data-toggle="popover" data-trigger="focus" data-content="Click anywhere in the document to close this popover">
+
+                                                            <div class="col-xs-1">
+                                                                <button ng-click="plt.viewFile($parent.$index, $index)" type="button" class="btn btn-info" data-toggle="modal" data-target="#viewFile"><span class="glyphicon glyphicon-search"></span></button>
+                                                            </div>
+
+
+
+                                                                <div class="col-xs-4" placeholder="using">
+                                                                    <input placeholder="using" ng-model="plt.graphs[$parent.$index].plots[$index].using" type="label" class="form-control">
+                                                                </div>
+
+                                                            <!---->
+
+                                                              <!--  <div class="col-xs-4"  placeholder="using" data-placement="left" data-toggle="popover" data-trigger="focus" data-content="format: `a:b` <br/>a - column with x cords<br/>b - column with y cords">
+                                                                    <div >
+                                                                    </div>
+                                                                </div>-->
+
+                                                               <!-- <div class="col-xs-4" ng-if="plt.isPlot3u($parent.$index, $index) && plt.graphs[$parent.$index].graphType == '3D'" placeholder="using" data-placement="left" data-toggle="popover" data-trigger="focus" data-content="format: `a:b:c` <br/>a - column with x cords<br/>b - column with y cords<br/>c - column with z cords">
+                                                                    <div >
+                                                                        <input placeholder="using" ng-model="plt.graphs[$parent.$index].plots[$index].using" type="label" class="form-control">
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-xs-4" ng-if="plt.isPlot3u($parent.$index, $index) && plt.graphs[$parent.$index].graphType == '2D'" placeholder="using" data-placement="left" data-toggle="popover" data-trigger="focus" data-content="format: `a:b:c` <br/>a - column with x cords<br/>b - column with y cords<br/>c - column with errors">
+                                                                    <div >
+                                                                        <input placeholder="using" ng-model="plt.graphs[$parent.$index].plots[$index].using" type="label" class="form-control">
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-xs-4" ng-if="plt.isPlot4u($parent.$index, $index)" placeholder="using" data-placement="left" data-toggle="popover" data-trigger="focus" data-content="format: `a:b:c:d` <br/>a - column with x cords<br/>b - column with y cords<br/>c - column with x errors<br/>d - column with y errors">
+                                                                    <div>
+                                                                        <input placeholder="using" ng-model="plt.graphs[$parent.$index].plots[$index].using" type="label" class="form-control">
+                                                                    </div>
+                                                                </div>-->
+
+                                                        </div>
+
+                                                        <div  ng-show='plt.graphs[$parent.$index].plots[$index].dataFile == ""'>
+                                                            <div class="alert alert-danger">
+                                                                <strong>Invalid!</strong> Select a file! You want upload some files go to: <a href="@routes.AppController.filesPage">Files</a>. (Remember to save your project.)
                                                             </div>
                                                         </div>
+
+                                                        <div  ng-show="plt.checkUsing($parent.$index, $index)">
+                                                            <div class="alert alert-danger">
+                                                                <strong>Invalid!</strong> Incorrect using command! <br>
+                                                                {{plt.usingTipDescr}}
+                                                            </div>
+                                                        </div>
+
+                                                        <!--<div ng-if="plt.isPlot2u($parent.$index, $index)" ng-show="!plt.matchedUsing2(plt.graphs[$parent.$index].plots[$index].using)">-->
+                                                            <!--<div class="alert alert-danger">-->
+                                                                <!--<strong>Invalid!</strong> Incorrect using command!-->
+                                                            <!--</div>-->
+                                                        <!--</div>-->
+
+                                                        <!--<div ng-if="plt.isPlot3u($parent.$index, $index)" ng-show="!plt.matchedUsing3(plt.graphs[$parent.$index].plots[$index].using)">-->
+                                                            <!--<div class="alert alert-danger">-->
+                                                                <!--<strong>Invalid!</strong> Incorrect using command!-->
+                                                            <!--</div>-->
+                                                        <!--</div>-->
+
+                                                        <!--<div ng-if="plt.isPlot4u($parent.$index, $index)" ng-show="!plt.matchedUsing4(plt.graphs[$parent.$index].plots[$index].using)">-->
+                                                            <!--<div class="alert alert-danger">-->
+                                                                <!--<strong>Invalid!</strong> Incorrect using command!-->
+                                                            <!--</div>-->
+                                                        <!--</div>-->
+
                                                     </div>
                                                 </div>
 
@@ -81,7 +149,10 @@
                                                                     <option data-content='<img src="@{routes.Assets.versioned("images/lines/line5.png")}">' >5</option>
                                                                 </select>
                                                             </div>
-                                                            <div class="col-sm-4">
+                                                            <div class="col-sm-3">
+                                                                <p class="align-middle">width:</p>
+                                                            </div>
+                                                            <div class="col-sm-5">
                                                                 <input type="text" ng-model="plt.graphs[$parent.$index].plots[$index].lineWidth" class="form-control" placeholder="size">
                                                             </div>
                                                         </div>
@@ -116,7 +187,10 @@
                                                                         <option data-content='<img src="@{routes.Assets.versioned("images/points/point15.png")}">' >15</option>
                                                                     </select>
                                                                 </div>
-                                                                <div class="col-sm-4">
+                                                                <div class="col-sm-3">
+                                                                    <p class="align-middle">width:</p>
+                                                                </div>
+                                                                <div class="col-sm-5">
                                                                     <input type="text" ng-model="plt.graphs[$parent.$index].plots[$index].pointSize" class="form-control" placeholder="size" id="pointWidth">
                                                                 </div>
 
@@ -131,7 +205,10 @@
 
                                                         <div ng-show="plt.graphs[$parent.$index].plots[$index].plotType == 'filledcurve'">
                                                             <div class="row">
-                                                                <div class="col-sm-4">
+                                                                <div class="col-sm-2">
+                                                                    <p class="align-middle">type:</p>
+                                                                </div>
+                                                                <div class="col-sm-3">
                                                                     <select class="selectpicker" ng-model="plt.graphs[$parent.$index].plots[$index].fillType" data-width="100px">
                                                                         <option  >x1</option>
                                                                         <option  >x2</option>
@@ -140,7 +217,10 @@
                                                                     </select>
                                                                 </div>
 
-                                                                <div class="col-sm-4">
+                                                                <div class="col-sm-2">
+                                                                    <p class="align-middle">fill:</p>
+                                                                </div>
+                                                                <div class="col-sm-3">
                                                                     <select class="selectpicker" ng-model="plt.graphs[$parent.$index].plots[$index].patternType" data-width="100px">
                                                                         <option>0</option>
                                                                         <option>1</option>
@@ -186,15 +266,38 @@
                                                 <div class="container-fluid">
                                                     <br>
                                                     <div class="row">
-                                                        <div class="col-xs-8">
-                                                            <select class="selectpicker"  ng-model="plt.graphs[$parent.$index].plots[$index].dataFile" data-width="200px">
-                                                                <option ng-repeat="file in plt.files">{{file.name}}</option>
+                                                        <div class="col-xs-7">
+                                                            <select class="form-control" ng-model="plt.graphs[$parent.$index].plots[$index].dataFile" data-width="200px">
+                                                                <option ng-repeat="file in plt.files" value="{{file.name}}">{{file.name}}</option>
                                                             </select>
+                                                            <!--<select class="selectpicker"  ng-model="plt.graphs[$parent.$index].plots[$index].dataFile" data-width="200px">-->
+                                                                <!--<option ng-repeat="file in plt.files">{{file.name}}</option>-->
+                                                            <!--</select>-->
                                                         </div>
-                                                        <div class="col-xs-4">
-                                                            <input ng-model="plt.graphs[$parent.$index].plots[$index].using" type="label" class="form-control"  placeholder="using" data-toggle="popover" data-trigger="focus" data-content="Click anywhere in the document to close this popover">
+
+                                                        <div class="col-xs-1">
+                                                            <button ng-click="plt.viewFile($parent.$index, $index)" type="button" class="btn btn-info" data-toggle="modal" data-target="#viewFile"><span class="glyphicon glyphicon-search"></span></button>
+                                                        </div>
+
+                                                        <!--<div class="col-xs-4">-->
+                                                            <!--<input ng-model="plt.graphs[$parent.$index].plots[$index].using" type="label" class="form-control"  placeholder="using" data-toggle="popover" data-trigger="focus" data-content="Click anywhere in the document to close this popover">-->
+                                                        <!--</div>-->
+
+                                                        <div class="col-xs-4"  data-placement="left" data-toggle="popover" data-trigger="focus" data-content="format: `a` <br/>a - column with data (greater than 1)">
+                                                            <div >
+                                                                <input placeholder="using" ng-model="plt.graphs[$parent.$index].plots[$index].using" type="label" class="form-control">
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div ng-show="!plt.matchedNatural(plt.graphs[$parent.$index].plots[$index].using, 2, 999)">
+                                                        <div class="alert alert-danger">
+                                                            <strong>Invalid!</strong> Incorrect using command!
                                                         </div>
                                                     </div>
+
+
 
                                                     <div class="row">
                                                         <div class="col-sm-12">
@@ -230,9 +333,9 @@
                                 <div class="btn-group">
                                     <button ng-click="plt.removeGraph($index)" type="button" class="btn btn-primary btn-block">Remove Graph</button>
                                 </div>
-                                <div class="btn-group">
-                                    <button ng-click="" type="button" class="btn btn-primary btn-block">Save as...</button>
-                                </div>
+                                <!--<div class="btn-group">-->
+                                    <!--<button ng-click="" type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#saveAsProject">Save as...</button>-->
+                                <!--</div>-->
                             </div>
                             <div class="well full-page">
                                 <canvas id="plot-svg-{{$index}}">
@@ -275,17 +378,37 @@
                                                 <input class="form-control input-sm" ng-model="plt.graphs[$index].samples.samplesX"  type="text" value="10">
                                             </div>
                                         </div>
+
+                                        <div ng-show="!plt.matchedNatural(plt.graphs[$index].samples.samplesX, 2, 200)">
+                                            <div class="alert alert-danger">
+                                                <strong>Invalid!</strong> Type only natural numbers from 2 to 200.
+                                            </div>
+                                        </div>
+
                                         <div class="form-group">
                                             <label class="col-sm-5 control-label">Samples y:</label>
                                             <div class="col-sm-7">
                                                 <input class="form-control input-sm" ng-model="plt.graphs[$index].samples.samplesY" type="text" value="10">
                                             </div>
                                         </div>
+
+                                        <div ng-show="!plt.matchedNatural(plt.graphs[$index].samples.samplesY, 2, 200)">
+                                            <div class="alert alert-danger">
+                                                <strong>Invalid!</strong> Type only natural numbers from 2 to 200.
+                                            </div>
+                                        </div>
+
                                         <div ng-show="plt.graphs[$index].graphType != '2D'">
                                             <div class="form-group">
                                                 <label class="col-sm-5 control-label">Samples z:</label>
                                                 <div class="col-sm-7">
                                                     <input class="form-control input-sm" ng-model="plt.graphs[$index].samples.samplesZ"  type="text" value="10">
+                                                </div>
+                                            </div>
+
+                                            <div ng-show="!plt.matchedNatural(plt.graphs[$index].samples.samplesZ, 2, 200)">
+                                                <div class="alert alert-danger">
+                                                    <strong>Invalid!</strong> Type only natural numbers from 2 to 200.
                                                 </div>
                                             </div>
                                         </div>
@@ -300,10 +423,23 @@
                                                 <input class="form-control input-sm" ng-model="plt.graphs[$index].view.viewX" type="text" value="10">
                                             </div>
                                         </div>
+
+                                        <div ng-show="!plt.matchedNatural(plt.graphs[$index].view.viewX, 0, 360)">
+                                            <div class="alert alert-danger">
+                                                <strong>Invalid!</strong> Type only natural numbers from 0 to 360.
+                                            </div>
+                                        </div>
+
                                         <div class="form-group">
                                             <label class="col-sm-5 control-label">View y:</label>
                                             <div class="col-sm-7">
                                                 <input class="form-control input-sm" ng-model="plt.graphs[$index].view.viewY" type="text" value="10">
+                                            </div>
+                                        </div>
+
+                                        <div ng-show="!plt.matchedNatural(plt.graphs[$index].view.viewY, 0, 360)">
+                                            <div class="alert alert-danger">
+                                                <strong>Invalid!</strong> Type only natural numbers from 0 to 360.
                                             </div>
                                         </div>
 
@@ -323,10 +459,17 @@
                                         </div>
                                     </div>
 
+
                                     <div class="form-group">
                                         <label class="col-sm-5 control-label">Width:</label>
                                         <div class="col-sm-7">
                                             <input class="form-control input-sm" ng-model="plt.graphs[$index].grid.gridWidth" type="text" value="0.5">
+                                        </div>
+                                    </div>
+
+                                    <div ng-show="!plt.matchedReal(plt.graphs[$index].grid.gridWidth, 0.0, 100.0)">
+                                        <div class="alert alert-danger">
+                                            <strong>Invalid!</strong> Type only real numbers from 0.0 to 100.0.
                                         </div>
                                     </div>
 
@@ -371,10 +514,23 @@
                                                 <input class="form-control input-sm" ng-model="plt.graphs[$index].contourFontSize" type="text" value="0.5">
                                             </div>
                                         </div>
+
+                                        <div ng-show="!plt.matchedReal(plt.graphs[$index].contourFontSize, 0.0, 100.0)">
+                                            <div class="alert alert-danger">
+                                                <strong>Invalid!</strong> Type only real numbers from 0.0 to 100.0.
+                                            </div>
+                                        </div>
+
                                         <div class="form-group">
                                             <label class="col-sm-5 control-label">Contour levels:</label>
                                             <div class="col-sm-7">
                                                 <input class="form-control input-sm" ng-model="plt.graphs[$index].contourLevels"  type="text" value="20">
+                                            </div>
+                                        </div>
+
+                                        <div ng-show="!plt.matchedNatural(plt.graphs[$index].contourLevels, 2, 50)">
+                                            <div class="alert alert-danger">
+                                                <strong>Invalid!</strong> Type only natural numbers from 2 to 50.
                                             </div>
                                         </div>
 
@@ -398,10 +554,22 @@
                                             </div>
                                         </div>
 
+                                        <div ng-show="!plt.matchedReal(plt.graphs[$index].histogramGap, 0.0, 10.0)">
+                                            <div class="alert alert-danger">
+                                                <strong>Invalid!</strong> Type only real numbers from 0.0 to 10.0.
+                                            </div>
+                                        </div>
+
                                         <div class="form-group">
                                             <label class="col-sm-5 control-label">Box width:</label>
                                             <div class="col-sm-7">
                                                 <input class="form-control input-sm" ng-model="plt.graphs[$index].histogramBoxWidth" type="text" value="1">
+                                            </div>
+                                        </div>
+
+                                        <div ng-show="!plt.matchedReal(plt.graphs[$index].histogramBoxWidth, 0.0, 1.0)">
+                                            <div class="alert alert-danger">
+                                                <strong>Invalid!</strong> Type only real numbers from 0.0 to 1.0.
                                             </div>
                                         </div>
 
@@ -484,9 +652,9 @@
             <div id="layout" class="tab-pane fade">
                 <div class="row" style="width: 100%;margin: 0px; max-height: 50px;">
 
-                    <div id="" class="text-center" >
+                    <div id="" class="text-center">
                             <ul id="page-pagination"  ng-model="plt.selectedPage" class="nav pagination pagination-sm">
-                                <li ng-repeat="page in plt.project.pages" ng-class="{active: $index==0}"><a data-toggle="tab" href="#tab-page{{$index}}">Page {{$index}}</a></li>
+                                <li ng-repeat="page in plt.project.pages" ng-click="plt.calculatePageEvent($index)"><a data-toggle="tab" href="#tab-page{{$index}}">Page {{$index + 1}}</a></li>
                             </ul>
                     </div>
                 </div>
@@ -499,18 +667,20 @@
 
                             <div class="col-sm-3">
                                 <div class="btn-group btn-group-justified">
+                                    <!--<div class="btn-group">-->
+                                        <!--<button class="btn btn-primary btn-block" ng-click="plt.clearGraphRefs($index)">Reset graphs</button>-->
+                                    <!--</div>-->
                                     <div class="btn-group">
-                                        <button class="btn btn-primary btn-block" ng-click="plt.clearGraphRefs($index)">Reset graphs</button>
+                                        <button class="btn btn-primary btn-block" ng-click="plt.newPage()">New Page</button>
                                     </div>
                                     <div class="btn-group">
-                                        <button class="btn btn-primary btn-block" ng-click="plt.newPage()">New Page</button>                                    </div>
-                                    <div class="btn-group">
-                                        <button class="btn btn-primary btn-block" ng-click="plt.deletePage($index)">Delete Page</button>                                    </div>
+                                        <button class="btn btn-primary btn-block" ng-click="plt.deletePage($index)">Delete Page</button>
+                                    </div>
                                 </div>
                                 <div id="page-drops-{{$index}}" class="well full-page3">
                                     <div id="origin{{$index}}" class="origin"></div>
                                     <div  class="draggable draggable{{$parent.$index}}" ng-repeat="graph in plt.graphs">
-                                        <p>{{$index}}</p>
+                                        <p>{{$index + 1}}</p>
                                     </div>
                                 </div>
                             </div>
@@ -529,10 +699,10 @@
                                 <div class="well full-page3">
                                     <form class="form-horizontal" role="form">
                                         <div class="form-group">
-                                            <label class="col-sm-5 control-label">Project:</label>
-                                            <div class="col-sm-7">
-                                                <input class="form-control" ng-model="plt.project.name" type="text" placeholder="Type project name">
-                                            </div>
+                                            <!--<label class="col-sm-5 control-label">Project:</label>-->
+                                            <!--<div class="col-sm-7">-->
+                                                <!--<input class="form-control" ng-model="plt.project.name" type="text" placeholder="Type project name">-->
+                                            <!--</div>-->
                                             <label class="col-sm-5 control-label">Title:</label>
                                             <div class="col-sm-7">
                                                 <input class="form-control" ng-model="plt.project.pages[$index].title" type="text" placeholder="Type title">
@@ -540,6 +710,13 @@
                                             <label class="col-sm-5 control-label">Title size:</label>
                                             <div class="col-sm-7">
                                                 <input class="form-control" ng-model="plt.project.pages[$index].titleSize" type="text" placeholder="Type title size">
+                                            </div>
+
+                                        </div>
+
+                                        <div ng-show="!plt.matchedNatural(plt.project.pages[$index].titleSize, 1, 9999)">
+                                            <div class="alert alert-danger">
+                                                <strong>Invalid!</strong> Type only natural numbers, greater than 0.
                                             </div>
                                         </div>
 
@@ -559,6 +736,12 @@
                                             </div>
                                         </div>
 
+                                        <div ng-show="!plt.matchedNatural(plt.project.pages[$index].font.size, 1, 9999)">
+                                            <div class="alert alert-danger">
+                                                <strong>Invalid!</strong> Type only natural numbers, greater than 0.
+                                            </div>
+                                        </div>
+
                                         <hr>
 
                                         <div class="form-group">
@@ -566,9 +749,22 @@
                                             <div class="col-sm-7">
                                                 <input class="form-control" ng-model="plt.project.pages[$index].width" type="text" placeholder="Type width in px">
                                             </div>
+
+                                            <div ng-show="!plt.matchedNatural(plt.project.pages[$index].width, 1, 9999)">
+                                                <div class="alert alert-danger">
+                                                    <strong>Invalid!</strong> Type only natural numbers, greater than 0.
+                                                </div>
+                                            </div>
+
                                             <label class="col-sm-5 control-label">Height:</label>
                                             <div class="col-sm-7">
                                                 <input class="form-control" ng-model="plt.project.pages[$index].height" type="text" placeholder="Type heigth in px">
+                                            </div>
+
+                                            <div ng-show="!plt.matchedNatural(plt.project.pages[$index].height, 1, 9999)">
+                                                <div class="alert alert-danger">
+                                                    <strong>Invalid!</strong> Type only natural numbers, greater than 0.
+                                                </div>
                                             </div>
 
                                             <label class="col-sm-5 control-label">Format:</label>
@@ -582,7 +778,13 @@
                                             </div>
                                         </div>
 
+
+                                        
                                         <button id="calculateBtn-{{$index}}" ng-click="plt.calculatePage($index)" class="btn btn-primary btn-block">Recalculate</button>
+
+                                        <button ng-click="plt.clearGraphRefs($index)" class="btn btn-primary btn-block">Reset</button>
+
+                                        <button ng-click="plt.defaultLayout()" class="btn btn-primary btn-block">Add default pages</button>
 
                                     </form>
                                 </div>
@@ -597,8 +799,8 @@
 
         <div id="pagination" class="text-center" hidden>
             <ul id="plot-pagination"  ng-model="plt.currentGraph" class="nav pagination pagination-lg">
-                <li ng-repeat="n in plt.graphs" ng-class="{active: $index==0}"><a data-toggle="tab" href="#tab-{{$index}}">{{$index}}</a></li>
-                <li><a data-toggle="tab" href="#layout" ng-click="plt.calculateAllPages()">Layout</a></li>
+                <li ng-repeat="n in plt.graphs" ><a data-toggle="tab" href="#tab-{{$index}}">{{$index + 1}}</a></li>
+                <li><a data-toggle="tab" href="#layout" ng-click="plt.calculateAllPages()" ng-hide="plt.project == undefined">Layout</a></li>
             </ul>
         </div>
 
@@ -647,7 +849,6 @@
 
     </div>
 
-
      <!--Modal-->
     <div id="viewFile" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -662,14 +863,100 @@
                 <div class="modal-body">
                     <textarea class="form-control" rows="15" readonly>{{plt.modalFileView.dataHead}}</textarea>
                 </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!--Modal-->
+    <div id="newProject" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Type project name:</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" ng-show="!plt.validProjectName()">
+                        <div class="alert alert-danger">
+                            <strong>Invalid!</strong> Project {{newProjectName}} already exists or empty name!
+                        </div>
+                    </div>
+                    <input class="form-control" ng-model="plt.newProjectName" type="text" placeholder="title">
+                </div>
                 <div class="modal-footer">
-                    <button ng-click="plt.confirmDataChange()" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button ng-click="plt.downloadFile(plt.modalFileView)" type="button" class="btn btn-default" data-dismiss="modal">Download</button>
+                    <button ng-show="plt.validProjectName()" ng-click="plt.confirmProjectName()" type="button" class="btn btn-default" data-dismiss="modal">Confirm</button>
                 </div>
             </div>
 
         </div>
     </div>
+
+    <!--Modal-->
+    <div id="deleteProject" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Are you sure?</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Your project will be removed completely.</p>
+                </div>
+                <div class="modal-footer">
+                    <button ng-click="plt.removeProject()" type="button" class="btn btn-default" data-dismiss="modal">Remove project</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--&lt;!&ndash;Modal&ndash;&gt;-->
+    <!--<div id="saveAsProject" class="modal fade" role="dialog">-->
+        <!--<div class="modal-dialog">-->
+
+            <!--&lt;!&ndash; Modal content&ndash;&gt;-->
+            <!--<div class="modal-content">-->
+                <!--<div class="modal-header">-->
+                    <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
+                    <!--<h4 class="modal-title">Choose output type:</h4>-->
+                <!--</div>-->
+                <!--<div class="modal-body">-->
+                    <!--<div class="row" ng-show="!plt.checkLineWidth(plt.saveAsWidth)">-->
+                        <!--<div class="alert alert-danger">-->
+                            <!--<strong>Invalid!</strong> Width must be whole number greather than 0-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="form-group">-->
+                        <!--<label>Width [px]:</label>-->
+                        <!--<input type="text" class="form-control" ng-model="plt.saveAsWidth">-->
+                    <!--</div>-->
+                    <!--<div class="row" ng-show="!plt.checkLineWidth(plt.saveAsHeight)">-->
+                        <!--<div class="alert alert-danger">-->
+                            <!--<strong>Invalid!</strong> Height must be whole number greather than 0-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="form-group">-->
+                        <!--<label>Height [px]:</label>-->
+                        <!--<input type="text" class="form-control" ng-model="plt.saveAsHeight">-->
+                    <!--</div>-->
+                    <!--<button ng-disabled="!plt.checkLineWidth(plt.saveAsWidth) || !plt.checkLineWidth(plt.saveAsHeight)" class="btn btn-default " ng-click="plt.saveAs($index, 'pdf')">PDF</button>-->
+                    <!--<button ng-disabled="!plt.checkLineWidth(plt.saveAsWidth) || !plt.checkLineWidth(plt.saveAsHeight)" class="btn btn-default " ng-click="plt.saveAs($index, 'svg')">SVG</button>-->
+                    <!--<button ng-disabled="!plt.checkLineWidth(plt.saveAsWidth) || !plt.checkLineWidth(plt.saveAsHeight)" class="btn btn-default " ng-click="plt.saveAs($index, 'eps')">EPS</button>-->
+                    <!--<button ng-disabled="!plt.checkLineWidth(plt.saveAsWidth) || !plt.checkLineWidth(plt.saveAsHeight)" class="btn btn-default " ng-click="plt.saveAs($index, 'png')">PNG</button>-->
+                <!--</div>-->
+            <!--</div>-->
+
+        <!--</div>-->
+    <!--</div>-->
+
+
 </div>
 
 

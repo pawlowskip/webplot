@@ -1,22 +1,40 @@
 package util
 
-import scala.concurrent.{Promise, Future}
-import scala.sys.process.Process
-import play.api.libs.concurrent.Execution.Implicits._
+import java.io.OutputStream
+import java.nio.charset.Charset
 
-object ProcessRunner {
+import akka.actor.{ActorSystem, ActorLogging, Props, Actor}
+import akka.pattern.ask
+import akka.util.Timeout
+
+import scala.concurrent.duration._
+import scala.concurrent.{SyncVar, Promise, Future}
+import scala.io.Source
+import scala.sys.process.{ProcessIO, Process}
+import util.MyExecutionContext._
+import scala.concurrent.blocking
+
+
+
+class ProcessRunner(val actorSystem: ActorSystem) {
 
   def run(command: String): Future[Int] = {
     val p = Promise[Int]()
-    //val logger = ProcessLogger( println(_) , err => p.failure(throw new Error(err)) )
+
     Future{
-      val process = Process(command).run()
-      // 0 - ok, 1- error in  script,
-      process.exitValue match{
-        case 0 => p.success(0)
-        case _ => p.failure(new Error("Syntax Exception"))
+      blocking{
+        val process = Process(command).run()
+        // 0 - ok, 1- error in  script,
+        process.exitValue match{
+          case 0 => p.success(0)
+          case _ => p.failure(new Error("Syntax Exception"))
+        }
       }
     }
+
     p.future
   }
+
+
+
 }

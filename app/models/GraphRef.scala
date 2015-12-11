@@ -1,5 +1,5 @@
 package models
-
+import scala.language.postfixOps
 
 case class GraphRef(
                    graphId: Int,

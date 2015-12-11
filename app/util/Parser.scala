@@ -1,7 +1,7 @@
 package util
 
 import java.awt.Color
-import play.api.libs.concurrent.Execution.Implicits._
+
 
 object Parser {
   val rgba = """^rgba\((\d{1,3}),(\d{1,3}),(\d{1,3}),(\d(\.\d+)?)\)$""".r
@@ -24,7 +24,6 @@ object Parser {
   def parseLegend(params: (String, String, String, String, String, String)): String = {
     params match {
       case (a, b, c, d, e, f) => val res = s"$a $b $c $d $e $f"
-        println(res)
         res match {
           case legendRegex(g, h, i, j, k, l) if g != "off" => s"$h $i $j $k $l"
           case _ => ""
@@ -36,7 +35,7 @@ object Parser {
   def unapplyLegend(legend: String): (String, String, String, String, String, String) =
     legend match {
       case legendRegex(a, b, c, d, e, f) => (a, b, c, d, e, f)
-      case _ => ("off", "outside", "left", "top", "verical", "box")
+      case _ => ("off", "outside", "left", "top", "vertical", "box")
     }
 
   def parseHistoramBorderType(params: List[String]): String = {

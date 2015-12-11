@@ -1,4 +1,6 @@
 package models
+import scala.language.postfixOps
+
 
 sealed trait Role
 case object Administrator extends Role{

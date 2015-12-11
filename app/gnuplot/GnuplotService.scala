@@ -3,20 +3,28 @@ package gnuplot
 import java.io.File
 import java.net.URI
 import java.nio.file.Paths
+import akka.actor.ActorSystem
 import models.{Graph, Project, Page}
 import modules.Gnuplot
 import util.{Files, ProcessRunner}
 
 import scala.concurrent.Future
 import scala.io.{Source}
-import play.api.libs.concurrent.Execution.Implicits._
+import util.MyExecutionContext._
 
-class GnuplotService extends Gnuplot{
+class GnuplotService(val system: ActorSystem) extends Gnuplot{
 
-  //        val source = Source.fromFile(output, "UTF-8")
-  //        val res = source.map( _.toByte ).toArray
-  //        source.close
-  //        res
+  val processRunner = new ProcessRunner(system)
+
+  sealed trait OS
+  object Windows extends OS
+  object Unix extends OS
+
+  private [this] val os = if (System.getProperty("os.name").startsWith("Windows")) Windows else Unix
+  private [this] val symbol = os match {
+    case Unix => ""
+    case Windows => "\""
+  }
 
   def singleRender(page: Page, graphs: List[Graph], script: File, output: File): Future[Array[Byte]] = {
     singleRender0(page, graphs, script, output).map{
@@ -26,9 +34,8 @@ class GnuplotService extends Gnuplot{
 
   def singleRender0(page: Page, graphs: List[Graph], script: File, output: File): Future[File] = {
     val commands = ScriptGenerator.generateScript(page, graphs ,output.getAbsolutePath)
-    println (commands)
     Files.writeToFile(script, commands)
-    ProcessRunner.run(s"""gnuplot "${script.getAbsolutePath}"""").map( x => output )
+    processRunner.run(s"""gnuplot $symbol${script.getAbsolutePath}$symbol""").map( x => output )
   }
 
   def multiPageRender(project: Project, scripts: List[File], files: List[File]): Future[List[File]] = {

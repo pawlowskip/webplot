@@ -51,7 +51,7 @@ class AuthenticationController (val messagesApi: MessagesApi, val accountsDao: A
 
   def login(mode: String, error: String) = Action.async {
     implicit request =>
-      Logger.info("Serving login page ...")
+      Logger.debug("Serving login page ...")
       Future.successful(Ok(views.html.login("login", "")))
   }
 

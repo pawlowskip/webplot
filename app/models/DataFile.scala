@@ -1,4 +1,5 @@
 package models
+import scala.language.postfixOps
 
 case class DataFile(
                    name: String,

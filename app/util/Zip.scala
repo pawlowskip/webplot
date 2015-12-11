@@ -4,7 +4,7 @@ import java.io.{BufferedOutputStream, FileInputStream, FileOutputStream, File}
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import scala.concurrent.Future
-import play.api.libs.concurrent.Execution.Implicits._
+import util.MyExecutionContext._
 
 object Zip {
   def zipFiles(outputPath: String, files: List[File]): Future[File]  = {
@@ -14,7 +14,6 @@ object Zip {
       for(input <- files){
         val fis = new FileInputStream(input)
         val ze = new ZipEntry(input.getName())
-        println("Zipping the file: "+input.getName())
         zipOut.putNextEntry(ze)
         val tmp = new Array[Byte](4*1024)
         var size = 0
@@ -26,7 +25,6 @@ object Zip {
         fis.close()
       }
       zipOut.close()
-      println("Done... Zipped the files...")
       new File(outputPath)
     }
   }
