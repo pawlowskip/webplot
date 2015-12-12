@@ -1,3 +1,7 @@
-# Getting started with Play (Scala)
+# WebPlot
 
-This project demonstrate how to create a simple CRUD application with Play.
+This project allows creating plotting service.
+
+Required:
+- Gnuplot 5.01
+- MongoDB
