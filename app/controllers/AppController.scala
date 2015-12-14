@@ -40,7 +40,7 @@ class AppController (val accountsDao: AccountsDao,
     Ok(views.html.files())
   }
 
-  def upload = AsyncStack(parse.multipartFormData, AuthorityKey -> NormalUser){
+  def upload = AsyncStack(parse.multipartFormData, AuthorityKey -> NormalUser) {
     implicit request =>
       request.body.file("files[]").map { file =>
         val filename = file.filename
