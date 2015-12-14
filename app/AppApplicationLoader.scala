@@ -32,7 +32,6 @@ trait AppModule
   def actorSystem: ActorSystem
   def applicationLifecycle: DefaultApplicationLifecycle
 
-
   lazy val reactiveMongoApi = new DefaultReactiveMongoApi(actorSystem, configuration, applicationLifecycle)
 
   // Define services bindings

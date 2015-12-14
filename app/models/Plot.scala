@@ -8,22 +8,21 @@ import util.{Parser}
 import scala.util.Try
 import scala.language.postfixOps
 
-case class Plot(
-                 label: String,
-                 plotDataType: String,
-                 dataFun: String,
-                 dataFile: String,
-                 plotType: PlotType,
-                 using: String,
-                 patternType: Int,
-                 fillType: String,
-                 lineType: Int,
-                 pointType: Int,
-                 lineWidth: Int,
-                 pointSize: Double,
-                 color: Color)
+case class Plot(label: String,
+                plotDataType: String,
+                dataFun: String,
+                dataFile: String,
+                plotType: PlotType,
+                using: String,
+                patternType: Int,
+                fillType: String,
+                lineType: Int,
+                pointType: Int,
+                lineWidth: Int,
+                pointSize: Double,
+                color: Color)
 
-object PlotType extends Enumeration{
+object PlotType extends Enumeration {
   type PlotType = Value
   val LINES = Value("lines")
   val POINTS = Value("points")
@@ -42,10 +41,10 @@ object Plot{
 
   implicit val plotReads: Reads[Plot] = (
         (__ \ "label").read[String] and
-        (__ \ "plotDataType").read( equal("f") or equal("d") ) and
+        (__ \ "plotDataType").read(equal("f") or equal("d")) and
         (__ \ "dataFun").read[String] and
         (__ \ "dataFile").read[String] and
-        (__ \ "plotType").read[String].map( Try{PlotType.withName(_)}.getOrElse( (x:String) => PlotType.LINES ) ) and
+        (__ \ "plotType").read[String].map(Try{PlotType.withName(_)}.getOrElse((x:String) => PlotType.LINES)) and
         (__ \ "using").read[String] and
         (__ \ "patternType").read(parseInt) and
         (__ \ "fillType").read(Reads.pattern(filledCurvePatternRegex)) and

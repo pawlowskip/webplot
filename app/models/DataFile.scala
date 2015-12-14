@@ -1,10 +1,15 @@
 package models
 import scala.language.postfixOps
 
-case class DataFile(
-                   name: String,
-                   size: Long, // size in bytes
-                   dataHead: String) // contains first x characters
+/**
+ * Class contains info about data file
+ * @param name - name of file
+ * @param size - size in bytes
+ * @param dataHead - contains first n characters
+ */
+case class DataFile(name: String,
+                    size: Long,
+                    dataHead: String)
 
 object DataFile{
   import play.api.libs.json._

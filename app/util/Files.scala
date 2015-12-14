@@ -4,7 +4,7 @@ import java.io.{FileNotFoundException, File}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{NoSuchFileException, Paths}
 
-import models.{Page, DataFile, Account, Project}
+import models._
 import scala.concurrent.{Future, Promise}
 import util.MyExecutionContext._
 import scala.util.{Try, Success, Failure}
@@ -30,46 +30,62 @@ object Files {
   def getUserFiles(account: Account): Future[List[File]] = Future{userCatalog(account).listFiles.toList}
 
   def getAllUserDataFiles(account: Account): Future[List[DataFile]] = {
-    def toDataFile(file: File): Future[DataFile] =
-      Future{
+    def toDataFile(file: File): Future[DataFile] = Future{
         val source = Source.fromFile(file)
         val text = source.getLines().take(5).mkString("", "\n", "...")
         source.close()
-        DataFile(file.getName, file.length, text )
+        DataFile(file.getName, file.length, text)
       }
 
-    getUserFiles(account).flatMap{
-      list => Future.traverse(list){
-        toDataFile
-      }
-    }
+    //getUserFiles(account).flatMap { list => 
+    //  Future.traverse(list)(toDataFile)
+    //}
+    for {
+      files <- getUserFiles(account)
+      dataFiles <- Future.traverse(files)(toDataFile)
+    } yield dataFiles
   }
   
   def getUserFile(account: Account, fileName: String): Future[File] = {
-    getUserFiles(account).map{
-      _.find( _.getName == fileName ) match {
-        case Some(file) => file
-        case None => throw new NoSuchFileException(s"File $fileName doesn't exist!")
-      }
+//    getUserFiles(account).map {
+//      _.find( _.getName == fileName ) match {
+//        case Some(file) => file
+//        case None => throw new NoSuchFileException(s"File $fileName doesn't exist!")
+//      }
+//    }
+    
+    for {
+      files <- getUserFiles(account)
+    } yield files.find(_.getName == fileName) match {
+      case Some(file) => file
+      case None => throw new NoSuchFileException(s"File $fileName doesn't exist!")
     }
   }
 
-  def deleteFile(account: Account, fileName: String): Future[Unit] = {
+  def deleteFile(account: Account, fileName: String): Future[Boolean] = {
+//    for {
+//      list <- getUserFiles(account)
+//      file = list.find{_.getName == fileName }
+//      result = file match {
+//        case Some(file) => file.delete()
+//        case None => throw new NoSuchFileException(s"File $fileName doesn't exist!")
+//      }
+//      if result == true
+//    } yield ()
+
     for {
       list <- getUserFiles(account)
-      file = list.find{_.getName == fileName }
-      result = file match {
-        case Some(file) => file.delete()
-        case None => throw new NoSuchFileException(s"File $fileName doesn't exist!")
-      }
-      if result == true
-    } yield ()
+      file = list.find(_.getName == fileName)
+    } yield file match {
+      case Some(existing) => existing.delete()
+      case None => throw new NoSuchFileException(s"File $fileName doesn't exist!")
+    }
   }
 
   def getFileExtension(file: File): Option[String] = {
-    val regEx = """^.+\.([a-z]+)$""".r
+    import Parser.fileExtension
     file.getName match {
-      case regEx(ext) => Some(ext)
+      case fileExtension(ext) => Some(ext)
       case _ => None
     }
   }
@@ -86,15 +102,15 @@ object Files {
     new File(rootOutputCatalog, s"${login}_out.${extension}")
   }
 
-  def getUserScriptFiles(usersLogin: String, n: Int): List[File] = {
-    (0 until n).toList.map{
+  def getUserScripts(usersLogin: String, countOfScripts: Int): List[File] = {
+    (0 until countOfScripts).toList.map{
       x => new File(rootScriptCatalog, s"${usersLogin}_script_${x}.gpl")
     }
   }
 
   def getUserOutputs(user:  String, project: Project): List[File] = {
-    project.pages.zipWithIndex.map{
-      case (page, index) =>  new File(rootOutputCatalog, s"${user}_out_${index}.${page.terminal}")
+    project.pages.zipWithIndex.map {
+      case (page, index) => new File(rootOutputCatalog, s"${user}_out_${index}.${page.terminal}")
     }
   }
 
@@ -103,24 +119,41 @@ object Files {
   }
 
   def transformFilePaths(account: Account, project: Project): Future[Project] = {
-    getUserFiles(account).map{
-      files => {
-        val correctedGraphs = project.graphs.map{
-          graph => {
-            val newPlots = graph.plots.map{
-              plot => plot.plotDataType match {
-                case "f" => plot
-                case "d" => {
-                  val correctPath = files.find(_.getName == plot.dataFile)
-                  plot.copy(dataFile = correctPath.get.getAbsolutePath)
-                }
-              }
-            }
-            graph.copy(plots = newPlots)
-          }
-        }
-        project.copy(graphs = correctedGraphs)
+
+//    getUserFiles(account).map{
+//      files => {
+//        val correctedGraphs = project.graphs.map {
+//          graph => {
+//            val newPlots = graph.plots.map{
+//              plot => plot.plotDataType match {
+//                case "f" => plot
+//                case "d" => {
+//                  val correctPath = files.find(_.getName == plot.dataFile)
+//                  plot.copy(dataFile = correctPath.get.getAbsolutePath)
+//                }
+//              }
+//            }
+//            graph.copy(plots = newPlots)
+//          }
+//        }
+//        project.copy(graphs = correctedGraphs)
+//      }
+//    }
+
+    def transformPlotDataPath(plot: Plot, files: List[File]) = plot.plotDataType match {
+      case "f" => plot
+      case "d" => {
+        val correctPath = files.find(_.getName == plot.dataFile)
+        plot.copy(dataFile = correctPath.get.getAbsolutePath)
       }
+    }
+
+    getUserFiles(account).map { files =>
+      val correctedGraphs = project.graphs.map { graph =>
+        val newPlots = graph.plots.map(transformPlotDataPath(_, files))
+        graph.copy(plots = newPlots)
+      }
+      project.copy(graphs = correctedGraphs)
     }
   }
   

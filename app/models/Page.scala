@@ -3,15 +3,14 @@ package models
 import util.Parser
 import scala.language.postfixOps
 
-case class Page(
-  title: String,
-  titleSize: Int,
-  width: Int,
-  height: Int,
-  font: (String, Int),
-  terminal: String,
-  url: String,
-  graphRefs: List[GraphRef])
+case class Page(title: String,
+                titleSize: Int,
+                width: Int,
+                height: Int,
+                font: (String, Int),
+                terminal: String,
+                url: String,
+                graphRefs: List[GraphRef])
 
 object Page {
   import util.Validation._
@@ -49,6 +48,5 @@ object Page {
       (__ \ "url").write[String] and
       (__ \ "graphRefs").write( OWrites.list[GraphRef] )
     )(unlift(Page.unapply))
-
 
 }

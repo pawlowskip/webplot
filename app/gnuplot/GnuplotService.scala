@@ -26,24 +26,38 @@ class GnuplotService(val system: ActorSystem) extends Gnuplot{
     case Windows => "\""
   }
 
-  def singleRender(page: Page, graphs: List[Graph], script: File, output: File): Future[Array[Byte]] = {
-    singleRender0(page, graphs, script, output).map{
+  def renderSinglePage(page: Page,
+                       graphs: List[Graph],
+                       script: File,
+                       output: File): Future[Array[Byte]] = {
+
+    renderPageAndGetResultFile(page, graphs, script, output).map {
       x => java.nio.file.Files.readAllBytes(Paths.get(x.getAbsolutePath))
     }
   }
 
-  def singleRender0(page: Page, graphs: List[Graph], script: File, output: File): Future[File] = {
+  def renderPageAndGetResultFile(page: Page,
+                                 graphs: List[Graph],
+                                 script: File,
+                                 output: File): Future[File] = {
+    
     val commands = ScriptGenerator.generateScript(page, graphs ,output.getAbsolutePath)
     Files.writeToFile(script, commands)
-    processRunner.run(s"""gnuplot $symbol${script.getAbsolutePath}$symbol""").map( x => output )
+    val command = s"""gnuplot $symbol${script.getAbsolutePath}$symbol"""
+    processRunner.run(command).map(x => output)
   }
 
-  def multiPageRender(project: Project, scripts: List[File], files: List[File]): Future[List[File]] = {
-    require( project.pages.length == scripts.length && project.pages.length == files.length,
-      s"Invalid number of elements! ${project.pages.length}, ${scripts.length}, ${files.length}")
-    val futuresList: List[Future[File]] = (project.pages, scripts, files).zipped.map{
-        case (page, script, output) =>
-          singleRender0(page, project.graphs, script, output)
+  def multiPageRender(project: Project, 
+                      scripts: List[File], 
+                      files: List[File]): Future[List[File]] = {
+    
+    require(project.pages.length == scripts.length &&
+            project.pages.length == files.length,
+            s"Invalid number of elements! ${project.pages.length}, ${scripts.length}, ${files.length}")
+
+    val futuresList: List[Future[File]] = (project.pages, scripts, files).zipped.map {
+      case (page, script, output) =>
+        renderPageAndGetResultFile(page, project.graphs, script, output)
     }
     Future.sequence(futuresList)
   }

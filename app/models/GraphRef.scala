@@ -1,12 +1,11 @@
 package models
 import scala.language.postfixOps
 
-case class GraphRef(
-                   graphId: Int,
-                   x: Double,
-                   y: Double,
-                   width: Double,
-                   height: Double)
+case class GraphRef(graphId: Int,
+                    x: Double,
+                    y: Double,
+                    width: Double,
+                    height: Double)
 
 object GraphRef {
   import play.api.libs.json._

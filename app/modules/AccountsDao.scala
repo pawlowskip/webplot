@@ -1,9 +1,7 @@
 package modules
 
 import models.{Project, Account}
-
 import scala.concurrent.Future
-
 
 trait AccountsDao {
   def createAccount(account: Account): Future[Unit]

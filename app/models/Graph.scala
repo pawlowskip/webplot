@@ -7,30 +7,51 @@ import GraphType.GraphType
 import scala.util.Try
 import scala.language.postfixOps
 
-case class Graph(
-                  title: String,
-                  graphType: GraphType, // 2d, 3d, hist, cont, pm3d
-                  xAxis: Axis,
-                  yAxis: Axis,
-                  zAxis: Axis,
-                  view: (Int, Int),
-                  samples:(Int, Int, Int),
-                  grid: (Double, String), // empty string = no grid, x, y, x y
-                  legend: String, //
-                  width: Double,
-                  height: Double,
-                  position: (Double, Double),
-                  contourFontSize: Double,
-                  contourLevels: Int,
-                  histogramType: String, // rows, cluster
-                  histogramGap: Double,
-                  histogramBoxWidth: Double,// relative
-                  histogramBorder: (String, Color), // np. fill solid border
-                  palette: List[Color],
-                  plots: List[Plot])
+/**
+ * Contains info about graph
+ * @param title
+ * @param graphType contains '2d', '3d', 'hist', 'cont' or 'pm3d'
+ * @param xAxis
+ * @param yAxis
+ * @param zAxis
+ * @param view
+ * @param samples
+ * @param grid contains empty string(no grid) or 'x', 'y', 'x y'
+ * @param legend
+ * @param width
+ * @param height
+ * @param position
+ * @param contourFontSize
+ * @param contourLevels
+ * @param histogramType contains 'rows' or 'cluster'
+ * @param histogramGap
+ * @param histogramBoxWidth
+ * @param histogramBorder
+ * @param palette
+ * @param plots
+ */
+case class Graph(title: String,
+                 graphType: GraphType,
+                 xAxis: Axis,
+                 yAxis: Axis,
+                 zAxis: Axis,
+                 view: (Int, Int),
+                 samples: (Int, Int, Int),
+                 grid: (Double, String),
+                 legend: String,
+                 width: Double,
+                 height: Double,
+                 position: (Double, Double),
+                 contourFontSize: Double,
+                 contourLevels: Int,
+                 histogramType: String,
+                 histogramGap: Double,
+                 histogramBoxWidth: Double,
+                 histogramBorder: (String, Color),
+                 palette: List[Color],
+                 plots: List[Plot])
 
-
-object GraphType extends Enumeration{
+object GraphType extends Enumeration {
   type GraphType = Value
   val PL2D = Value("2D")
   val PL3D = Value("3D")
@@ -39,7 +60,8 @@ object GraphType extends Enumeration{
   val PM3D = Value("PM3D")
 }
 
-object Graph{
+object Graph {
+
   import util.Validation._
   import util.Parser._
   import play.api.libs.json._
@@ -49,7 +71,7 @@ object Graph{
 
   implicit val graphReads: Reads[Graph] = (
       (__ \ "title").read[String] and
-      (__ \ "graphType").read[String].map( Try{GraphType.withName(_)}.getOrElse( (x:String) => GraphType.PL2D) ) and
+      (__ \ "graphType").read[String].map(Try{GraphType.withName(_)}.getOrElse((x:String) => GraphType.PL2D)) and
       (__ \ "xAxis").read[Axis] and
       (__ \ "yAxis").read[Axis] and
       (__ \ "zAxis").read[Axis] and
@@ -91,7 +113,7 @@ object Graph{
       (__ \ "histogramGap").read(parseDouble) and
       (__ \ "histogramBoxWidth").read(parseDouble) and
       (__ \ "histogramBorder").read(
-        (__ \ "type").read( Reads.list[String]).map(parseHistoramBorderType) and
+        (__ \ "type").read( Reads.list[String]).map(parseHistogramBorderType) and
         (__ \ "color").read(color)
         tupled
       ) and
@@ -147,8 +169,8 @@ object Graph{
         (__ \ "color").write[String].contramap(Parser.colorRgbToStr)
         tupled
       ) and
-      (__ \ "palette").write( OWrites.list[String] ).contramap( (list: List[Color]) => list.map( Parser.colorRgbToStr(_) ) ) and
-      (__ \ "plots").write( OWrites.list[Plot] )
+      (__ \ "palette").write(OWrites.list[String]).contramap((list: List[Color]) => list.map(Parser.colorRgbToStr(_))) and
+      (__ \ "plots").write(OWrites.list[Plot])
     )(unlift(Graph.unapply))
 
 }

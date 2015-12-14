@@ -13,7 +13,8 @@ import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class AuthenticationController (val messagesApi: MessagesApi, val accountsDao: AccountsDao)
+class AuthenticationController(val messagesApi: MessagesApi,
+                               val accountsDao: AccountsDao)
   extends Controller
   with I18nSupport
   with LoginLogout
@@ -34,31 +35,33 @@ class AuthenticationController (val messagesApi: MessagesApi, val accountsDao: A
     } yield user
   }
 
-  
   val loginForm = Form(
     tuple(
       "username" -> nonEmptyText,
       "password" -> nonEmptyText
-    ))
+    )
+  )
+
+  private def checkForm(inputs: (String, String, String)): Boolean = inputs match {
+    case (_, password, retyped) => password == retyped
+  }
 
   val registrationForm = Form(
     tuple(
       "username" -> nonEmptyText,
       "password" -> nonEmptyText,
       "retypedPassword" -> nonEmptyText
-    ).verifying("Retype password correctly!", f => f._2 == f._3)
+    ).verifying("Retype password correctly!", checkForm _)
   )
 
-  def login(mode: String, error: String) = Action.async {
-    implicit request =>
-      Logger.debug("Serving login page ...")
-      Future.successful(Ok(views.html.login("login", "")))
+  def login(mode: String, error: String) = Action.async { implicit request =>
+    Logger.debug("Serving login page ...")
+    Future.successful(Ok(views.html.login("login", "")))
   }
 
 
-  def logout = Action.async {
-    implicit request =>
-      Future.successful(Ok(views.html.login("created", "You are now logged out.")))
+  def logout = Action.async { implicit request =>
+    Future.successful(Ok(views.html.login("created", "You are now logged out.")))
   }
 
   def logoutRequest = Action.async { implicit request =>
@@ -77,20 +80,26 @@ class AuthenticationController (val messagesApi: MessagesApi, val accountsDao: A
     )
   }
 
+  def registerNewUser(inputs: (String, String, String)): Future[Result] = inputs match {
+    case (username, password, retyped) =>
+      import com.github.t3hnar.bcrypt._
+
+      val result = for {
+        available <- accountsDao.checkUsernameAvailability(username)
+        if available
+        account = Account(username, password.bcrypt, NormalUser)
+        newAccount <- accountsDao.createAccount(account)
+        newCatalog = util.Files.createUserCatalog(account)
+      } yield Ok(views.html.login("created", "Account created! Log in!"))
+
+      result.fallbackTo( Future.successful(BadRequest(views.html.login("register", "This username is not available!"))) )
+  }
+
+
   def registerRequest = Action.async { implicit request =>
-    import com.github.t3hnar.bcrypt._
     registrationForm.bindFromRequest.fold(
       formWithErrors => Future.successful(BadRequest(views.html.login("register", formWithErrors.globalError.get.message))),
-      { case (username, password, retyped) =>
-        (for {
-          available <- accountsDao.checkUsernameAvailability(username)
-          if available == true
-          account = Account(username, password.bcrypt, NormalUser)
-          newAccount <- accountsDao.createAccount(account)
-          newCatalog = util.Files.createUserCatalog(account)
-          result <- Future.successful{Ok(views.html.login("created", "Account created! Log in!"))}
-        } yield result).fallbackTo( Future.successful(BadRequest(views.html.login("register", "This username is not available!"))) )
-      }
+      inputs => registerNewUser(inputs)
     )
   }
 

@@ -1,13 +1,13 @@
 package util
 
-import java.io.{BufferedOutputStream, FileInputStream, FileOutputStream, File}
+import java.io._
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import scala.concurrent.Future
 import util.MyExecutionContext._
 
 object Zip {
-  def zipFiles(outputPath: String, files: List[File]): Future[File]  = {
+  def zipFiles(outputPath: String, files: List[File]): Future[File] = {
     val fos = new FileOutputStream(outputPath)
     val zipOut = new ZipOutputStream(new BufferedOutputStream(fos))
     Future{
@@ -29,24 +29,23 @@ object Zip {
     }
   }
 
-  def zip(out: String, files: Iterable[String]) = {
-    import java.io.{ BufferedInputStream, FileInputStream, FileOutputStream }
-    import java.util.zip.{ ZipEntry, ZipOutputStream }
-
+  def zip(out: String, files: Iterable[String]): Future[File] = {
     val zip = new ZipOutputStream(new FileOutputStream(out))
-
-    files.foreach { name =>
-      zip.putNextEntry(new ZipEntry(name))
-      val in = new BufferedInputStream(new FileInputStream(name))
-      var b = in.read()
-      while (b > -1) {
-        zip.write(b)
-        b = in.read()
+    Future {
+      files.foreach { name =>
+        zip.putNextEntry(new ZipEntry(name))
+        val in = new BufferedInputStream(new FileInputStream(name))
+        var b = in.read()
+        while (b > -1) {
+          zip.write(b)
+          b = in.read()
+        }
+        in.close()
+        zip.closeEntry()
       }
-      in.close()
-      zip.closeEntry()
+      zip.close()
+      new File(out)
     }
-    zip.close()
   }
 
 }

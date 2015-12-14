@@ -2,11 +2,10 @@ package models
 
 import scala.language.postfixOps
 
-case class Project(
-  name: String,
-  graphs: List[Graph],
-  pages: List[Page],
-  author: String)
+case class Project(name: String,
+                   graphs: List[Graph],
+                   pages: List[Page],
+                   author: String)
 
 object Project {
   import models.Graph._

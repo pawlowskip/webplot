@@ -1,20 +1,10 @@
 package util
 
-import java.io.OutputStream
-import java.nio.charset.Charset
-
-import akka.actor.{ActorSystem, ActorLogging, Props, Actor}
-import akka.pattern.ask
-import akka.util.Timeout
-
-import scala.concurrent.duration._
-import scala.concurrent.{SyncVar, Promise, Future}
-import scala.io.Source
-import scala.sys.process.{ProcessIO, Process}
+import akka.actor.{ActorSystem}
+import scala.concurrent.{Promise, Future}
+import scala.sys.process.Process
 import util.MyExecutionContext._
 import scala.concurrent.blocking
-
-
 
 class ProcessRunner(val actorSystem: ActorSystem) {
 
@@ -34,7 +24,5 @@ class ProcessRunner(val actorSystem: ActorSystem) {
 
     p.future
   }
-
-
 
 }

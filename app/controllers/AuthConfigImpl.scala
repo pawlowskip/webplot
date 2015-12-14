@@ -60,24 +60,27 @@ trait AuthConfigImpl extends AuthConfig {
    * Where to redirect the user after a successful login.
    */
   def loginSucceeded(request: RequestHeader)(implicit ctx: ExecutionContext): Future[Result] =
-    Future.successful(Redirect(routes.AppController.index))
+    Future.successful(Redirect(routes.AppController.index()))
 
   /**
    * Where to redirect the user after logging out
    */
   def logoutSucceeded(request: RequestHeader)(implicit ctx: ExecutionContext): Future[Result] =
-    Future.successful(Redirect(routes.AuthenticationController.logout))
+    Future.successful(Redirect(routes.AuthenticationController.logout()))
 
   /**
    * If the user is not logged in and tries to access a protected resource then redirct them as follows:
    */
   def authenticationFailed(request: RequestHeader)(implicit ctx: ExecutionContext): Future[Result] =
-    Future.successful(Redirect(routes.AuthenticationController.login))
+    Future.successful(Redirect(routes.AuthenticationController.login()))
 
   /**
    * If authorization failed (usually incorrect password) redirect the user as follows:
    */
-  override def authorizationFailed(request: RequestHeader, user: User, authority: Option[Authority])(implicit context: ExecutionContext): Future[Result] = {
+  override def authorizationFailed(request: RequestHeader,
+                                   user: User, authority:
+                                   Option[Authority])(implicit context: ExecutionContext): Future[Result] = {
+
     Future.successful(Forbidden("no permission"))
   }
 
@@ -85,11 +88,14 @@ trait AuthConfigImpl extends AuthConfig {
    * A function that determines what `Authority` a user has.
    * You should alter this procedure to suit your application.
    */
-  def authorize(user: User, authority: Authority)(implicit ctx: ExecutionContext): Future[Boolean] = Future.successful {
+  def authorize(user: User,
+                authority: Authority)
+               (implicit ctx: ExecutionContext): Future[Boolean] = Future.successful {
+
     (user.role, authority) match {
-      case (Administrator, _)       => true
+      case (Administrator, _) => true
       case (NormalUser, NormalUser) => true
-      case _                        => false
+      case _ => false
     }
   }
 

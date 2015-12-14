@@ -105,7 +105,7 @@ class AppController (val accountsDao: AccountsDao,
       val res1 = for {
         project <- Future{request.body.validate[Project].get}(util.MyExecutionContext.ec)
         p <- Files.transformFilePaths(user, project)
-        r <- gnuplot.singleRender(p.pages.head, p.graphs,
+        r <- gnuplot.renderSinglePage(p.pages.head, p.graphs,
                                   Files.getUserScriptFile(user.username),
                                   Files.getUserOutputFile(user.username, p.pages.head.terminal))
       } yield Ok(r).as(extensionToMIME(p.pages.head.terminal))
@@ -129,7 +129,7 @@ class AppController (val accountsDao: AccountsDao,
         project <- Future{request.body.validate[Project].get}(util.MyExecutionContext.ec)
         p <- Files.transformFilePaths(user, project)
         r <- gnuplot.multiPageRender(p,
-          Files.getUserScriptFiles(user.username, p.pages.length),
+          Files.getUserScripts(user.username, p.pages.length),
           Files.getUserOutputs(user.username, p))
         zippedFiles <- Zip.zipFiles(Files.getUserZipFilePath(user.username), r)
       }  yield Ok(Json.toJson(Map("status" -> "ok")))

@@ -6,14 +6,14 @@ import java.awt.Color
 private [gnuplot] object ScriptGenerator {
 
   def generateScript(page: Page, graphs: List[Graph], outputFilePath: String): String = {
-    def multiplotTitle = page.title match {
+    def multiPlotTitle = page.title match {
       case "" => ""
       case _  => s"""title "${page.title}" font ",${page.titleSize}""""
     }
 
     s"""|${terminal(page)}
         |${output(outputFilePath)}
-        |set multiplot $multiplotTitle
+        |set multiplot $multiPlotTitle
         |${(for(g <- page.graphRefs) yield graph(graphs, g)).mkString("", "reset\n", "reset\n")}
         |unset multiplot
         |quit
@@ -22,7 +22,10 @@ private [gnuplot] object ScriptGenerator {
 
   private def graph(graphs: List[Graph], graph: GraphRef): String = {
 
-    val g = graphs(graph.graphId).copy( width = graph.width, height = graph.height, position = (graph.x, graph.y) )
+    val g = graphs(graph.graphId)
+              .copy(width = graph.width,
+                    height = graph.height,
+                    position = (graph.x, graph.y))
 
     val head = s"""|set size ${g.width},${g.height}
         |set origin ${g.position._1},${g.position._2}
@@ -87,6 +90,7 @@ private [gnuplot] object ScriptGenerator {
             |set xtic rotate by -45 scale 0
             |plot ${histogramPlots(g.plots)}
             |""".stripMargin
+
       case _ => ""
     }
 
@@ -184,18 +188,26 @@ private [gnuplot] object ScriptGenerator {
     case _ => s"set key $param"
   }
 
-  private def color(c: Color) = {
-    val (a, r, g, b) = (c.getAlpha, c.getRed, c.getGreen, c.getBlue)
-
-    a match {
-      case 255 => s""""#${Integer.toHexString(c.getRGB()).substring(2)}""""
-      case _ => s""""#${Integer.toHexString(c.getRGB())}""""
-    }
+  private def color(c: Color) = c.getAlpha match {
+    case 255 => s""""#${Integer.toHexString(c.getRGB).substring(2)}""""
+    case _ => s""""#${Integer.toHexString(c.getRGB)}""""
   }
 
-  private def palette(gradient: List[Color]) ={
-    val definition = (for ((c, n) <- gradient.zipWithIndex) yield s"""$n ${color(c)}""").mkString("( ", ", ", " )")
-    s"set palette defined $definition"
+//  {
+//    val (a, r, g, b) = (c.getAlpha, c.getRed, c.getGreen, c.getBlue)
+//
+//    a match {
+//      case 255 => s""""#${Integer.toHexString(c.getRGB).substring(2)}""""
+//      case _ => s""""#${Integer.toHexString(c.getRGB)}""""
+//    }
+//  }
+
+  private def palette(gradient: List[Color]) = {
+    val colorsDefinition = for {
+      (c, n) <- gradient.zipWithIndex
+    } yield s"""$n ${color(c)}"""
+    val definitionString = colorsDefinition.mkString("( ", ", ", " )")
+    s"set palette defined $definitionString"
   }
 
 }
