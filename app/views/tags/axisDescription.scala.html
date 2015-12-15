@@ -1,4 +1,4 @@
-@(axisName: String)(implicit flash:Flash, messages: Messages )
+@(axisName: String)
 <div id="axis-description-@(axisName)">
     <label for="@(axisName)-bounds">@(axisName.toUpperCase) axis:</label>
     <input id="@(axisName)-label" ng-model="plt.graphs[$index].@(axisName)Axis.label" class="form-control input-sm" type="text" placeholder="Label">

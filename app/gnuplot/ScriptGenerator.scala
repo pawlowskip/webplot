@@ -3,7 +3,6 @@ import java.awt.Color
 
 import models._
 
-
 private [gnuplot] object ScriptGenerator {
 
   def generateScript(page: Page, graphs: List[Graph], outputFilePath: String): String = {

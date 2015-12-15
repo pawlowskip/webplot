@@ -6,16 +6,13 @@ import modules.AccountsDao
 import play.Logger
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{Action, Controller, Result}
 
 import scala.concurrent.Future
 
-class AuthenticationController(val messagesApi: MessagesApi,
-                               val accountsDao: AccountsDao)
+class AuthenticationController(val accountsDao: AccountsDao)
   extends Controller
-  with I18nSupport
   with LoginLogout
   with AuthConfigImpl
 {

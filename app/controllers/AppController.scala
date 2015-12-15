@@ -16,10 +16,8 @@ import scala.concurrent.Future
 import scala.util._
 
 class AppController (val accountsDao: AccountsDao,
-                     val gnuplot: Gnuplot,
-                     val messagesApi: MessagesApi)
+                     val gnuplot: Gnuplot)
   extends Controller
-  with I18nSupport
   with AuthElement
   with AuthConfigImpl {
 

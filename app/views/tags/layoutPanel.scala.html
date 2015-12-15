@@ -1,0 +1,169 @@
+@()
+
+<div class="row" style="width: 100%;margin: 0px; max-height: 50px;">
+
+    <div id="" class="text-center">
+        <ul id="page-pagination" ng-model="plt.selectedPage" class="nav pagination pagination-sm">
+            <li ng-repeat="page in plt.project.pages" ng-click="plt.calculatePageEvent($index)"><a
+                    data-toggle="tab" href="#tab-page{{$index}}">Page {{$index + 1}}</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="tab-content">
+
+    <div ng-repeat="page in plt.project.pages" id="tab-page{{$index}}"
+         class="tab-pane fade in {{$index == 0 ? 'active' : ''}}">
+
+        <div id="layout-page" class="layout-page">
+
+            <div class="col-sm-3">
+                <div class="btn-group btn-group-justified">
+                    <div class="btn-group">
+                        <button class="btn btn-primary btn-block" ng-click="plt.newPage()">New Page
+                        </button>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary btn-block" ng-click="plt.deletePage($index)">
+                            Delete Page
+                        </button>
+                    </div>
+                </div>
+                <div id="page-drops-{{$index}}" class="well full-page3">
+                    <div id="origin{{$index}}" class="origin"></div>
+                    <div class="draggable draggable{{$parent.$index}}" ng-repeat="graph in plt.graphs">
+                        <p>{{$index + 1}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div id="page-{{$index}}" class="full-page2" style="margin: 0px;">
+                    <div id="page-in-{{$index}}" class="dropzone">
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-sm-3">
+                <button class="btn btn-primary btn-block" ng-click="plt.generateProject()">Generate
+                    project
+                </button>
+                <div class="well full-page3">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group">
+
+                            <label class="col-sm-5 control-label">Title:</label>
+
+                            <div class="col-sm-7">
+                                <input class="form-control" ng-model="plt.project.pages[$index].title"
+                                       type="text" placeholder="Type title">
+                            </div>
+                            <label class="col-sm-5 control-label">Title size:</label>
+
+                            <div class="col-sm-7">
+                                <input class="form-control"
+                                       ng-model="plt.project.pages[$index].titleSize" type="text"
+                                       placeholder="Type title size">
+                            </div>
+
+                        </div>
+
+                        <div ng-show="!plt.matchedNatural(plt.project.pages[$index].titleSize, 1, 9999)">
+                            <div class="alert alert-danger">
+                                <strong>Invalid!</strong> Type only natural numbers, greater than 0.
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">Font:</label>
+
+                            <div class="col-sm-7">
+                                <select class="selectpicker"
+                                        ng-model="plt.project.pages[$index].font.name"
+                                        data-width="150px">
+                                    <option>Cambria</option>
+                                    <option>Arial</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-5 control-label">Font size:</label>
+
+                            <div class="col-sm-7">
+                                <input class="form-control"
+                                       ng-model="plt.project.pages[$index].font.size" type="text"
+                                       placeholder="Type font size">
+                            </div>
+                        </div>
+
+                        <div ng-show="!plt.matchedNatural(plt.project.pages[$index].font.size, 1, 9999)">
+                            <div class="alert alert-danger">
+                                <strong>Invalid!</strong> Type only natural numbers, greater than 0.
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">Width:</label>
+
+                            <div class="col-sm-7">
+                                <input class="form-control" ng-model="plt.project.pages[$index].width"
+                                       type="text" placeholder="Type width in px">
+                            </div>
+
+                            <div ng-show="!plt.matchedNatural(plt.project.pages[$index].width, 1, 9999)">
+                                <div class="alert alert-danger">
+                                    <strong>Invalid!</strong> Type only natural numbers, greater than 0.
+                                </div>
+                            </div>
+
+                            <label class="col-sm-5 control-label">Height:</label>
+
+                            <div class="col-sm-7">
+                                <input class="form-control" ng-model="plt.project.pages[$index].height"
+                                       type="text" placeholder="Type heigth in px">
+                            </div>
+
+                            <div ng-show="!plt.matchedNatural(plt.project.pages[$index].height, 1, 9999)">
+                                <div class="alert alert-danger">
+                                    <strong>Invalid!</strong> Type only natural numbers, greater than 0.
+                                </div>
+                            </div>
+
+                            <label class="col-sm-5 control-label">Format:</label>
+
+                            <div class="col-sm-7">
+                                <select class="selectpicker"
+                                        ng-model="plt.project.pages[$index].terminal"
+                                        data-width="150px">
+                                    <option>svg</option>
+                                    <option>png</option>
+                                    <option>pdf</option>
+                                    <option>eps</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <button id="calculateBtn-{{$index}}" ng-click="plt.calculatePage($index)"
+                                class="btn btn-primary btn-block">Recalculate
+                        </button>
+
+                        <button ng-click="plt.clearGraphRefs($index)" class="btn btn-primary btn-block">
+                            Reset
+                        </button>
+
+                        <button ng-click="plt.defaultLayout()" class="btn btn-primary btn-block">Add
+                            default pages
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

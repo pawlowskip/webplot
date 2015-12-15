@@ -24,8 +24,7 @@ trait AppComponents extends BuiltInComponents with AppModule {
 }
 
 trait AppModule
-  extends I18nComponents // for i18n support
-  with ReactiveMongoComponents
+  extends ReactiveMongoComponents
 {
   def configuration: Configuration
   def actorSystem: ActorSystem

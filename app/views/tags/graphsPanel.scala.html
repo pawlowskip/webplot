@@ -1,0 +1,360 @@
+@()
+
+<button ng-click="plt.drawGraph($index)" type="button" class="btn btn-primary btn-block">Refresh
+</button>
+<div class="well full-page">
+
+    <ul class="nav nav-pills nav-justified">
+        <li ng-class="plt.graphs[$index].graphType == '2D' ? 'active' : '' "><a data-toggle="pill"
+                                                                                ng-click="plt.changeGraphType($index, '2D')">2D</a>
+        </li>
+        <li ng-class="plt.graphs[$index].graphType == '3D' ? 'active' : '' "><a data-toggle="pill"
+                                                                                ng-click="plt.changeGraphType($index, '3D')">3D</a>
+        </li>
+        <li ng-class="plt.graphs[$index].graphType == 'HIST' ? 'active' : '' "><a data-toggle="pill"
+                                                                                  ng-click="plt.changeGraphType($index, 'HIST')">HIST</a>
+        </li>
+        <li ng-class="plt.graphs[$index].graphType == 'CONT' ? 'active' : '' "><a data-toggle="pill"
+                                                                                  ng-click="plt.changeGraphType($index, 'CONT')">CONT</a>
+        </li>
+        <li ng-class="plt.graphs[$index].graphType == 'PM3D' ? 'active' : '' "><a data-toggle="pill"
+                                                                                  ng-click="plt.changeGraphType($index, 'PM3D')">PM3D</a>
+        </li>
+    </ul>
+
+    <input type="text" class="form-control" ng-model="plt.graphs[$index].title" placeholder="Title">
+    <br>
+
+    <div ng-show="plt.graphs[$index].graphType != 'HIST'">
+        @views.html.tags.axisDescription("x")
+        @views.html.tags.axisDescription("y")
+        <div ng-show="plt.graphs[$index].graphType != '2D'">
+            @views.html.tags.axisDescription("z")
+        </div>
+        <hr>
+    </div>
+
+    <form class="form-horizontal" role="form">
+
+        <div ng-show="plt.graphs[$index].graphType != 'HIST'">
+            <div class="form-group">
+                <label class="col-sm-5  control-label">Samples x:</label>
+
+                <div class="col-sm-7">
+                    <input class="form-control input-sm"
+                           ng-model="plt.graphs[$index].samples.samplesX" type="text" value="10">
+                </div>
+            </div>
+
+            <div ng-show="!plt.matchedNatural(plt.graphs[$index].samples.samplesX, 2, 200)">
+                <div class="alert alert-danger">
+                    <strong>Invalid!</strong> Type only natural numbers from 2 to 200.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-5 control-label">Samples y:</label>
+
+                <div class="col-sm-7">
+                    <input class="form-control input-sm"
+                           ng-model="plt.graphs[$index].samples.samplesY" type="text" value="10">
+                </div>
+            </div>
+
+            <div ng-show="!plt.matchedNatural(plt.graphs[$index].samples.samplesY, 2, 200)">
+                <div class="alert alert-danger">
+                    <strong>Invalid!</strong> Type only natural numbers from 2 to 200.
+                </div>
+            </div>
+
+            <div ng-show="plt.graphs[$index].graphType != '2D'">
+                <div class="form-group">
+                    <label class="col-sm-5 control-label">Samples z:</label>
+
+                    <div class="col-sm-7">
+                        <input class="form-control input-sm"
+                               ng-model="plt.graphs[$index].samples.samplesZ" type="text"
+                               value="10">
+                    </div>
+                </div>
+
+                <div ng-show="!plt.matchedNatural(plt.graphs[$index].samples.samplesZ, 2, 200)">
+                    <div class="alert alert-danger">
+                        <strong>Invalid!</strong> Type only natural numbers from 2 to 200.
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+        </div>
+
+        <div ng-show="plt.graphs[$index].graphType == '3D'">
+            <div class="form-group">
+                <label class="col-sm-5 control-label">View x:</label>
+
+                <div class="col-sm-7">
+                    <input class="form-control input-sm" ng-model="plt.graphs[$index].view.viewX"
+                           type="text" value="10">
+                </div>
+            </div>
+
+            <div ng-show="!plt.matchedNatural(plt.graphs[$index].view.viewX, 0, 360)">
+                <div class="alert alert-danger">
+                    <strong>Invalid!</strong> Type only natural numbers from 0 to 360.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-5 control-label">View y:</label>
+
+                <div class="col-sm-7">
+                    <input class="form-control input-sm" ng-model="plt.graphs[$index].view.viewY"
+                           type="text" value="10">
+                </div>
+            </div>
+
+            <div ng-show="!plt.matchedNatural(plt.graphs[$index].view.viewY, 0, 360)">
+                <div class="alert alert-danger">
+                    <strong>Invalid!</strong> Type only natural numbers from 0 to 360.
+                </div>
+            </div>
+
+            <hr>
+        </div>
+
+
+        <div class="form-group">
+            <label class="col-sm-5 control-label">Grid:</label>
+
+            <div class="col-sm-7">
+                <select class="selectpicker" ng-model="plt.graphs[$index].grid.gridType"
+                        data-width="140px">
+                    <option>x</option>
+                    <option>y</option>
+                    <option>x y</option>
+                    <option>None</option>
+                </select>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label class="col-sm-5 control-label">Width:</label>
+
+            <div class="col-sm-7">
+                <input class="form-control input-sm" ng-model="plt.graphs[$index].grid.gridWidth"
+                       type="text" value="0.5">
+            </div>
+        </div>
+
+        <div ng-show="!plt.matchedReal(plt.graphs[$index].grid.gridWidth, 0.0, 100.0)">
+            <div class="alert alert-danger">
+                <strong>Invalid!</strong> Type only real numbers from 0.0 to 100.0.
+            </div>
+        </div>
+
+        <hr>
+
+        <label for="legend-div">Legend:</label>
+
+        <div id="legend-div">
+            <select class="selectpicker" ng-model="plt.graphs[$index].legend.isUsed"
+                    data-width="70px">
+                <option>on</option>
+                <option>off</option>
+            </select>
+            <select class="selectpicker" ng-model="plt.graphs[$index].legend.place"
+                    data-width="100px">
+                <option>outside</option>
+                <option>inside</option>
+            </select>
+            <select class="selectpicker" ng-model="plt.graphs[$index].legend.horiPos"
+                    data-width="100px">
+                <option>left</option>
+                <option>right</option>
+                <option>center</option>
+            </select>
+            <select class="selectpicker" ng-model="plt.graphs[$index].legend.vertPos"
+                    data-width="100px">
+                <option>top</option>
+                <option>bottom</option>
+                <option>center</option>
+            </select>
+            <select class="selectpicker" ng-model="plt.graphs[$index].legend.adjust"
+                    data-width="120px">
+                <option>vertical</option>
+                <option>horizontal</option>
+            </select>
+            <select class="selectpicker" ng-model="plt.graphs[$index].legend.box"
+                    data-width="100px">
+                <option>box</option>
+                <option>nobox</option>
+            </select>
+        </div>
+
+        <hr>
+
+        <div ng-show="plt.graphs[$index].graphType == 'CONT'">
+            <div class="form-group">
+                <label class="col-sm-5 control-label">Contour font size:</label>
+
+                <div class="col-sm-7">
+                    <input class="form-control input-sm"
+                           ng-model="plt.graphs[$index].contourFontSize" type="text" value="0.5">
+                </div>
+            </div>
+
+            <div ng-show="!plt.matchedReal(plt.graphs[$index].contourFontSize, 0.0, 100.0)">
+                <div class="alert alert-danger">
+                    <strong>Invalid!</strong> Type only real numbers from 0.0 to 100.0.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-5 control-label">Contour levels:</label>
+
+                <div class="col-sm-7">
+                    <input class="form-control input-sm" ng-model="plt.graphs[$index].contourLevels"
+                           type="text" value="20">
+                </div>
+            </div>
+
+            <div ng-show="!plt.matchedNatural(plt.graphs[$index].contourLevels, 2, 50)">
+                <div class="alert alert-danger">
+                    <strong>Invalid!</strong> Type only natural numbers from 2 to 50.
+                </div>
+            </div>
+
+            <hr>
+        </div>
+
+        <div ng-show="plt.graphs[$index].graphType == 'HIST'">
+            <div class="form-group">
+                <label class="col-sm-5 control-label">Type:</label>
+                <select class="selectpicker" ng-model="plt.graphs[$index].histogramType"
+                        data-width="80px">
+                    <option>row</option>
+                    <option>cluster</option>
+                </select>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-5 control-label">Gap:</label>
+
+                <div class="col-sm-7">
+                    <input class="form-control input-sm" ng-model="plt.graphs[$index].histogramGap"
+                           type="text" value="1">
+                </div>
+            </div>
+
+            <div ng-show="!plt.matchedReal(plt.graphs[$index].histogramGap, 0.0, 10.0)">
+                <div class="alert alert-danger">
+                    <strong>Invalid!</strong> Type only real numbers from 0.0 to 10.0.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-5 control-label">Box width:</label>
+
+                <div class="col-sm-7">
+                    <input class="form-control input-sm"
+                           ng-model="plt.graphs[$index].histogramBoxWidth" type="text" value="1">
+                </div>
+            </div>
+
+            <div ng-show="!plt.matchedReal(plt.graphs[$index].histogramBoxWidth, 0.0, 1.0)">
+                <div class="alert alert-danger">
+                    <strong>Invalid!</strong> Type only real numbers from 0.0 to 1.0.
+                </div>
+            </div>
+
+
+            <label class="col-sm-5 control-label">Border:</label>
+            <select class="selectpicker" ng-model="plt.graphs[$index].histogramBorder.type[0]"
+                    data-width="80px">
+                <option>empty</option>
+                <option>solid</option>
+            </select>
+            <select class="selectpicker" ng-model="plt.graphs[$index].histogramBorder.type[1]"
+                    data-width="80px">
+                <option>border</option>
+                <option>noborder</option>
+            </select>
+
+            <label class="control-label">Border color:</label>
+
+            <div class="row">
+                <div class=col-sm-12">
+                    <div class="input-group">
+                        <input colorpicker="rgb" colorpicker-parent="true"
+                               colorpicker-position="right" type="text"
+                               ng-model="plt.graphs[$index].histogramBorder.color"
+                               class="form-control"/>
+                                            <span class="input-group-addon">
+                                                <svg width="40" height="18">
+                                                    <rect width="40" height="18"
+                                                          style="fill:{{plt.graphs[$index].histogramBorder.color}}"/>
+                                                </svg>
+                                            </span>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+        </div>
+
+        <div ng-show="plt.graphs[$index].graphType == 'PM3D'">
+            <label class="control-label">Palette:</label>
+
+            <div class="row">
+                <div class="col-sm-8">
+                    <svg width="200" height="30">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop ng-repeat="idx in plt.getNumber(plt.graphs[$index].palette.length)"
+                                      offset="{{($index)*(100.0/(plt.graphs[$parent.$index].palette.length - 1))}}%"
+                                      style="stop-color:{{plt.graphs[$parent.$index].palette[$index]}};stop-opacity:1"/>
+                            </linearGradient>
+                        </defs>
+
+                        <rect width="200" height="30" fill="url(#grad1)"/>
+                    </svg>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-primary btn-sm" ng-click="plt.addColor($index)">Add
+                        Color
+                    </button>
+                </div>
+            </div>
+
+            <div ng-repeat="color in plt.getNumber(plt.graphs[$index].palette.length)">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <input colorpicker="rgb" colorpicker-parent="true"
+                                   colorpicker-position="right" type="text"
+                                   ng-model="plt.graphs[$parent.$index].palette[$index]"
+                                   class="form-control"/>
+                                            <span class="input-group-addon">
+                                                <svg width="40" height="18">
+                                                    <rect width="40" height="18"
+                                                          style="fill:{{plt.graphs[$parent.$index].palette[$index]}}"/>
+                                                </svg>
+                                            </span>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn btn-danger btn-sm"
+                                ng-click="plt.removeColor($parent.$index, $index)">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+        </div>
+
+    </form>
+</div>

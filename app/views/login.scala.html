@@ -1,13 +1,12 @@
-@(mode: String, error: String)(implicit flash:Flash, messages: Messages )
+@(mode: String, error: String)
 
-@main("Welcome to Play", -1) {
+@main("Welcome to WebPlot", -1) {
 
 <div class="container">
     <div id="loginbox" style=' @{if (mode != "login" && mode != "created" ) "display:none;" } margin-top:50px;' class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
         <div class="panel panel-info" >
             <div class="panel-heading">
                 <div class="panel-title">Sign In</div>
-                <!--<div style="float:right; font-size: 80%; position: relative; top:-10px"><a href="#">Forgot password?</a></div>-->
             </div>
 
             <div style="padding-top:30px" class="panel-body" >
@@ -63,8 +62,6 @@
                     </div>
                 </form>
 
-
-
             </div>
         </div>
     </div>
@@ -113,22 +110,9 @@
                         </div>
                     </div>
 
-                    <!--<div style="border-top: 1px solid #999; padding-top:20px"  class="form-group">-->
-
-                        <!--<div class="col-md-offset-3 col-md-9">-->
-                            <!--<button id="btn-fbsignup" type="button" class="btn btn-primary"><i class="icon-facebook"></i>   Sign Up with Facebook</button>-->
-                        <!--</div>-->
-
-                    <!--</div>-->
-
-
-
                 </form>
             </div>
         </div>
-
-
-
 
     </div>
 </div>

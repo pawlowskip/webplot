@@ -1,6 +1,6 @@
-@()(implicit flash:Flash, messages: Messages )
+@()
 
-@main("Welcome to Play", 2) {
+@main("WebPlot", 2) {
 
 <div class="container-fluid content">
     <!-- for downloading files-->
@@ -16,11 +16,14 @@
                         <span class="btn btn-success fileinput-button">
                             <i class="glyphicon glyphicon-plus"></i>
                             <span>Select files to upload...</span>
-                            <input id="fileupload" type="file" name="files[]" multiple ng-click="filesCtrl.resetFileProgressBar()">
+                            <input id="fileupload" type="file" name="files[]" multiple
+                                   ng-click="filesCtrl.resetFileProgressBar()">
                         </span>
                     </div>
                     <div class="col-sm-3">
-                        <button class="btn btn-danger" data-toggle="modal" data-target="#fileFormatInfo">Tip! File format info</button>
+                        <button class="btn btn-danger" data-toggle="modal" data-target="#fileFormatInfo">Tip! File
+                            format info
+                        </button>
                     </div>
                 </div>
 
@@ -36,9 +39,18 @@
                 <div class="full-page-files">
                     <div class="well well " ng-repeat="file in filesCtrl.files">
                         {{file.name}}
-                        <button ng-click="filesCtrl.deleteFile(file)" type="button" class="btn btn-danger btn-sm pull-right"><span class="glyphicon glyphicon-remove"></span> Delete</button>
-                        <button ng-click="filesCtrl.downloadFile(file)" type="button" class="btn btn-warning btn-sm pull-right"><span class="glyphicon glyphicon-download"></span> Download</button>
-                        <button ng-click="filesCtrl.viewFile(file)" type="button" class="btn btn-info btn-sm pull-right" data-toggle="modal" data-target="#viewFile"><span class="glyphicon glyphicon-search"></span> View</button>
+                        <button ng-click="filesCtrl.deleteFile(file)" type="button"
+                                class="btn btn-danger btn-sm pull-right"><span
+                                class="glyphicon glyphicon-remove"></span> Delete
+                        </button>
+                        <button ng-click="filesCtrl.downloadFile(file)" type="button"
+                                class="btn btn-warning btn-sm pull-right"><span
+                                class="glyphicon glyphicon-download"></span> Download
+                        </button>
+                        <button ng-click="filesCtrl.viewFile(file)" type="button" class="btn btn-info btn-sm pull-right"
+                                data-toggle="modal" data-target="#viewFile"><span
+                                class="glyphicon glyphicon-search"></span> View
+                        </button>
                     </div>
                 </div>
 
@@ -61,8 +73,12 @@
                     <textarea class="form-control" rows="15" readonly>{{filesCtrl.modalFileView.dataHead}}</textarea>
                 </div>
                 <div class="modal-footer">
-                    <button ng-click="filesCtrl.confirmDataChange()" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button ng-click="filesCtrl.downloadFile(filesCtrl.modalFileView)" type="button" class="btn btn-default" data-dismiss="modal">Download</button>
+                    <button ng-click="filesCtrl.confirmDataChange()" type="button" class="btn btn-default"
+                            data-dismiss="modal">Close
+                    </button>
+                    <button ng-click="filesCtrl.downloadFile(filesCtrl.modalFileView)" type="button"
+                            class="btn btn-default" data-dismiss="modal">Download
+                    </button>
                 </div>
             </div>
 

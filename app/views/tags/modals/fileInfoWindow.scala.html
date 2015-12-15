@@ -1,0 +1,19 @@
+@()
+
+<div id="viewFile" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">File: {{plt.modalFileView.name}}</h4>
+                <h4 class="modal-title">Size: {{plt.modalFileView.size}}</h4>
+            </div>
+            <div class="modal-body">
+                <textarea class="form-control" rows="15" readonly>{{plt.modalFileView.dataHead}}</textarea>
+            </div>
+        </div>
+
+    </div>
+</div>
