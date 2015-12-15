@@ -1,6 +1,7 @@
 package util
 
 import java.awt.Color
+
 import play.api.data.validation.ValidationError
 import play.api.libs.json.Reads
 import util.Parser._

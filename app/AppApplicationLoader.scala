@@ -1,17 +1,16 @@
 import akka.actor.ActorSystem
-
-import controllers.{ AuthenticationController, AppController, Assets}
+import com.softwaremill.macwire._
+import controllers.{AppController, Assets, AuthenticationController}
 import dao.AccountsDaoService
-import gnuplot.{GnuplotService}
+import gnuplot.GnuplotService
 import modules.{AccountsDao, Gnuplot}
 import play.api.ApplicationLoader.Context
 import play.api._
+import play.api.i18n.I18nComponents
 import play.api.inject.DefaultApplicationLifecycle
 import play.api.routing.Router
 import play.modules.reactivemongo._
 import router.Routes
-import play.api.i18n.I18nComponents
-import com.softwaremill.macwire._
 
 class AppApplicationLoader extends ApplicationLoader {
   def load(context: Context) = {

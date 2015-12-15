@@ -1,13 +1,13 @@
 package util
 
-import java.io.{FileNotFoundException, File}
+import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.{NoSuchFileException, Paths}
 
 import models._
-import scala.concurrent.{Future, Promise}
 import util.MyExecutionContext._
-import scala.util.{Try, Success, Failure}
+
+import scala.concurrent.Future
 import scala.io.Source
 
 object Files {
@@ -99,18 +99,18 @@ object Files {
   }
 
   def getUserOutputFile(login: String, extension: String): File = {
-    new File(rootOutputCatalog, s"${login}_out.${extension}")
+    new File(rootOutputCatalog, s"${login}_out.$extension")
   }
 
   def getUserScripts(usersLogin: String, countOfScripts: Int): List[File] = {
     (0 until countOfScripts).toList.map{
-      x => new File(rootScriptCatalog, s"${usersLogin}_script_${x}.gpl")
+      x => new File(rootScriptCatalog, s"${usersLogin}_script_$x.gpl")
     }
   }
 
   def getUserOutputs(user:  String, project: Project): List[File] = {
     project.pages.zipWithIndex.map {
-      case (page, index) => new File(rootOutputCatalog, s"${user}_out_${index}.${page.terminal}")
+      case (page, index) => new File(rootOutputCatalog, s"${user}_out_$index.${page.terminal}")
     }
   }
 
@@ -142,10 +142,9 @@ object Files {
 
     def transformPlotDataPath(plot: Plot, files: List[File]) = plot.plotDataType match {
       case "f" => plot
-      case "d" => {
+      case "d" =>
         val correctPath = files.find(_.getName == plot.dataFile)
         plot.copy(dataFile = correctPath.get.getAbsolutePath)
-      }
     }
 
     getUserFiles(account).map { files =>

@@ -1,10 +1,10 @@
 package util
 
-import akka.actor.{ActorSystem}
-import scala.concurrent.{Promise, Future}
-import scala.sys.process.Process
+import akka.actor.ActorSystem
 import util.MyExecutionContext._
-import scala.concurrent.blocking
+
+import scala.concurrent.{Future, Promise, blocking}
+import scala.sys.process.Process
 
 class ProcessRunner(val actorSystem: ActorSystem) {
 

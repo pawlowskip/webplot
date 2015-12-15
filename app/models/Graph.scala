@@ -1,11 +1,12 @@
 package models
 
 import java.awt.Color
-import util.{Parser}
-import GraphType.GraphType
 
-import scala.util.Try
+import models.GraphType.GraphType
+import util.Parser
+
 import scala.language.postfixOps
+import scala.util.Try
 
 /**
  * Contains info about graph
@@ -62,12 +63,12 @@ object GraphType extends Enumeration {
 
 object Graph {
 
-  import util.Validation._
-  import util.Parser._
-  import play.api.libs.json._
-  import play.api.libs.functional.syntax._
   import Axis.axisReads
   import Plot.plotReads
+  import play.api.libs.functional.syntax._
+  import util.Parser._
+  import util.Validation._
+  import play.api.libs.json._
 
   implicit val graphReads: Reads[Graph] = (
       (__ \ "title").read[String] and

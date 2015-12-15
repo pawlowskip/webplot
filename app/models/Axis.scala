@@ -8,8 +8,8 @@ case class Axis(name: String,
                 isLogScale: Boolean)
 
 object Axis{
-  import play.api.libs.json._
   import play.api.libs.functional.syntax._
+  import play.api.libs.json._
 
   val axises = List("x", "y", "z")
 

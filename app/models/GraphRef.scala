@@ -8,8 +8,8 @@ case class GraphRef(graphId: Int,
                     height: Double)
 
 object GraphRef {
-  import play.api.libs.json._
   import play.api.libs.functional.syntax._
+  import play.api.libs.json._
 
   implicit val graphRefReads: Reads[GraphRef] = (
     (__ \ "graphId").read[Int] and

@@ -1,20 +1,19 @@
 package controllers
 
-import javax.inject.Inject
-
-import akka.actor.ActorSystem
-import dao.{NoSuchProjectException, NoSuchUserException}
+import dao.NoSuchProjectException
 import jp.t2v.lab.play2.auth.AuthElement
+import models.{NormalUser, Project}
 import modules.{AccountsDao, Gnuplot}
-import play.api.libs.json.Json
-import util.{Zip, Files}
-import models.{Account, Project, NormalUser}
 import play.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, Controller}
-import scala.concurrent.Future
+import play.api.libs.Files.TemporaryFile
 import play.api.libs.concurrent.Execution.Implicits._
-import scala.util.{Random, Success, Failure}
+import play.api.libs.json.Json
+import play.api.mvc.{Controller, MultipartFormData}
+import util.{Files, Zip}
+
+import scala.concurrent.Future
+import scala.util._
 
 class AppController (val accountsDao: AccountsDao,
                      val gnuplot: Gnuplot,
@@ -30,6 +29,14 @@ class AppController (val accountsDao: AccountsDao,
       "svg" -> "application/pdf",
       "eps" -> "application/eps")
 
+  val messageOk = Json.toJson(Map("status" -> "ok"))
+  val messageError = Json.toJson(Map("status" -> "error"))
+  val messageInvalidJson = Json.toJson(Map("status" -> "invalid json"))
+  val messageCreated = Json.toJson(Map("status" -> "created"))
+  val messageDeleted = Json.toJson(Map("status" -> "deleted"))
+  val messageMissingFiles = Json.toJson(Map("status" -> "missing files"))
+  val messageNoSuchProject = Json.toJson(Map("status" -> "noProject"))
+
   def index = StackAction(AuthorityKey -> NormalUser) { implicit request =>
     Logger.debug("Serving index page ...")
     Ok(views.html.gnuplot())
@@ -42,57 +49,83 @@ class AppController (val accountsDao: AccountsDao,
 
   def upload = AsyncStack(parse.multipartFormData, AuthorityKey -> NormalUser) {
     implicit request =>
-      request.body.file("files[]").map { file =>
-        val filename = file.filename
-        val toFile = Future {
-          file.ref.moveTo(Files.getOrCreateUserFile(loggedIn, filename))
-        }(util.MyExecutionContext.ec)
-        val res = toFile.map( f => {
-          Ok(Json.toJson(Map("status" -> "ok")))
-        })
-        res.onComplete{
-          case Success(_) => Logger.debug(s"Uploaded file $filename !")
-          case Failure(e) => Logger.debug(s"Upload failed! Error:$e")
-        }
-        res
-      }.getOrElse {
-        Future.successful(BadRequest("Missing files"))
+      def createUserFile(file: MultipartFormData.FilePart[TemporaryFile]) =
+        file.ref.moveTo(Files.getOrCreateUserFile(loggedIn, file.filename))
+
+      val uploadedFile = for {
+        parsed <- Future.fromTry(Try(request.body.file("files[]").get))
+        file <- Future(createUserFile(parsed))
+      } yield file
+
+      uploadedFile.andThen{
+        case Success(f) => Logger.debug(s"Uploaded file ${f.getName} !")
+        case Failure(e) => Logger.debug(s"Upload failed! Error:$e")
+      } map {
+        x => Ok(messageOk)
+      } recover {
+        case _ => BadRequest(messageMissingFiles)
       }
+
+//      request.body.file("files[]").map { file =>
+//        Future {
+//          file.ref.moveTo(Files.getOrCreateUserFile(loggedIn, file.filename))
+//        }(util.MyExecutionContext.ec)
+//          .map(x => Ok(Json.toJson(Map("status" -> "ok"))))
+//          .andThen {
+//            case Success(_) => Logger.debug(s"Uploaded file ${file.filename} !")
+//            case Failure(e) => Logger.debug(s"Upload failed! Error:$e")
+//          }
+//
+//      }.getOrElse {
+//        Future.successful(BadRequest("Missing files"))
+//      }
   }
 
   def userFiles = AsyncStack(AuthorityKey -> NormalUser) {
     implicit request =>
-      import models.DataFile._
       Logger.debug(s"Serving user files")
       Files.getAllUserDataFiles(loggedIn).map { userDataFiles =>
         Ok(Json.toJson(userDataFiles))
-      }.fallbackTo(Future.successful(BadRequest("Error!")))
+      } fallbackTo {
+        Future.successful {
+          BadRequest(messageError)
+        }
+      }
   }
 
   def deleteFile(fileName: String) = AsyncStack(AuthorityKey -> NormalUser){
     implicit request =>
       Logger.debug(s"Deleting user file: $fileName.")
-      Files.deleteFile(loggedIn, fileName).map { done =>
-          Logger.debug(s"Deleted file: $fileName.")
-          Ok(Json.toJson(Map("status" -> "deleted")))
-      } fallbackTo {
-        Future.successful{
-          BadRequest(Json.toJson(Map("status" -> "error")))
-        }
+
+      val deleting = for {
+        done <- Files.deleteFile(loggedIn, fileName)
+        _ = Logger.debug(s"Deleted file: $fileName.")
+      } yield done
+
+      deleting.map { x =>
+        Ok(Json.toJson(Map("status" -> "deleted")))
+      } recover {
+        case _ => BadRequest(messageError)
       }
+
+//      Files.deleteFile(loggedIn, fileName).map { done =>
+//        Ok(Json.toJson(Map("status" -> "deleted")))
+//      } fallbackTo {
+//        Future.successful{
+//          BadRequest(Json.toJson(Map("status" -> "error")))
+//        }
+//      }
   }
 
   def downloadFile(fileName: String) = AsyncStack(AuthorityKey -> NormalUser){
     implicit request =>
-      val user = loggedIn
       Logger.debug(s"Downloading user file: $fileName.")
-      Files.getUserFile(user, fileName).map{
-        file =>
-          Logger.debug(s"Download started - file: $fileName.")
-          Ok.sendFile(file)
-      }.fallbackTo{
+      Files.getUserFile(loggedIn, fileName).map{ file =>
+        Logger.debug(s"Download started - file: $fileName.")
+        Ok.sendFile(file)
+      } fallbackTo {
         Future.successful{
-          BadRequest(Json.toJson(Map("status" -> "error")))
+          BadRequest(messageError)
         }
       }
   }
@@ -101,21 +134,19 @@ class AppController (val accountsDao: AccountsDao,
     implicit request =>
       Logger.debug("Request for graph plot ...")
       Logger.debug(Json.prettyPrint(request.body))
-      val user = loggedIn
-      val res1 = for {
-        project <- Future{request.body.validate[Project].get}(util.MyExecutionContext.ec)
-        p <- Files.transformFilePaths(user, project)
-        r <- gnuplot.renderSinglePage(p.pages.head, p.graphs,
-                                  Files.getUserScriptFile(user.username),
-                                  Files.getUserOutputFile(user.username, p.pages.head.terminal))
-      } yield Ok(r).as(extensionToMIME(p.pages.head.terminal))
+      val result = for {
+        project <- Future.fromTry(Try(request.body.validate[Project].get))
+        transformed <- Files.transformFilePaths(loggedIn, project)
+        rendered <- gnuplot.renderSinglePage(transformed.pages.head, transformed.graphs,
+                                      Files.getUserScriptFile(loggedIn.username),
+                                      Files.getUserOutputFile(loggedIn.username, transformed.pages.head.terminal))
+      } yield Ok(rendered).as(extensionToMIME(transformed.pages.head.terminal))
 
-      res1.onComplete{
+      result.andThen{
         case Success(_) => Logger.debug("Graph created correctly.")
         case Failure(e) => Logger.error(s"Cannot create graph: ${e.getStackTrace.mkString("\n")}")
-      }
-      res1.fallbackTo{
-        Future.successful(BadRequest("invalid json"))
+      } fallbackTo {
+        Future.successful(BadRequest(messageInvalidJson))
       }
   }
 
@@ -125,52 +156,50 @@ class AppController (val accountsDao: AccountsDao,
       Logger.debug(Json.prettyPrint(request.body))
 
       val user = loggedIn
-      val res1 = for {
-        project <- Future{request.body.validate[Project].get}(util.MyExecutionContext.ec)
-        p <- Files.transformFilePaths(user, project)
-        r <- gnuplot.multiPageRender(p,
-          Files.getUserScripts(user.username, p.pages.length),
-          Files.getUserOutputs(user.username, p))
-        zippedFiles <- Zip.zipFiles(Files.getUserZipFilePath(user.username), r)
-      }  yield Ok(Json.toJson(Map("status" -> "ok")))
-      res1.onComplete{
+      val result = for {
+        project <- Future.fromTry(Try(request.body.validate[Project].get))
+        transformed <- Files.transformFilePaths(user, project)
+        rendered <- gnuplot.multiPageRender(transformed,
+                                            Files.getUserScripts(user.username, transformed.pages.length),
+                                            Files.getUserOutputs(user.username, transformed))
+        zippedFiles <- Zip.zipFiles(Files.getUserZipFilePath(user.username), rendered)
+      } yield Ok(messageOk)
+
+      result.andThen {
         case Success(_) => Logger.debug("Graph created correctly.")
-        case Failure(e) =>
-          e.printStackTrace()
-          Logger.error(s"Cannot create graph: $e")
-      }
-      res1.fallbackTo{
-        Future.successful(BadRequest("invalid json"))
+        case Failure(e) => Logger.error(s"Cannot create graph: ${e.getStackTrace.mkString("\n")}")
+      } fallbackTo {
+        Future.successful(BadRequest(messageInvalidJson))
       }
   }
 
-  def getProject = AsyncStack(AuthorityKey -> NormalUser){
+  def getProject = AsyncStack(AuthorityKey -> NormalUser) {
     implicit request =>
-      val user = loggedIn
       Logger.debug(s"Downloading user project:")
-      Future{
-        val file = new java.io.File(Files.getUserZipFilePath(user.username))
+      Future {
+        val file = new java.io.File(Files.getUserZipFilePath(loggedIn.username))
         Logger.debug(s"Download started - file: ${file.getName}.")
         Ok.sendFile(file)
-      }.fallbackTo{
-        Future.successful{
-          BadRequest(Json.toJson(Map("status" -> "error")))
+      } fallbackTo {
+        Future.successful {
+          BadRequest(messageError)
         }
       }
   }
 
   def getUserProjects = AsyncStack(AuthorityKey -> NormalUser) {
     implicit request =>
-      val user = loggedIn
       Logger.debug("Get user projects")
-      val projectsFuture = accountsDao.getProjects(user.username).map{
-        projects =>
-          Ok(Json.toJson(projects))
-      }
 
-      projectsFuture.fallbackTo{
-        Future.successful{
-          BadRequest(Json.toJson(Map("status" -> "error")))
+      val projectsFuture = for {
+        projects <- accountsDao.getProjects(loggedIn.username)
+      } yield projects
+
+      projectsFuture.map { ps =>
+        Ok(Json.toJson(ps))
+      } fallbackTo {
+        Future.successful {
+          BadRequest(messageError)
         }
       }
   }
@@ -184,11 +213,12 @@ class AppController (val accountsDao: AccountsDao,
         projectWithAuthor = project.copy(author = user.username)
         res <- accountsDao.saveOrUpdateProject(projectWithAuthor)
       } yield res
-      saving.map{
-        x => Ok(Json.toJson(Map("status" -> "created")))
-      }.fallbackTo{
-        Future.successful{
-          BadRequest(Json.toJson(Map("status" -> "error")))
+
+      saving.map {
+        x => Ok(messageCreated)
+      } fallbackTo {
+        Future.successful {
+          BadRequest(messageError)
         }
       }
   }
@@ -198,10 +228,10 @@ class AppController (val accountsDao: AccountsDao,
       val user = loggedIn
       Logger.debug(s"Delete project: $projectName. Owner: ${user.username} project")
       accountsDao.deleteProject(user.username, projectName).map {
-        x => Ok(Json.toJson(Map("status" -> "deleted")))
-      }.recover {
-        case NoSuchProjectException(e) => BadRequest(Json.toJson(Map("status" -> "noProject")))
-        case _=> BadRequest(Json.toJson(Map("status" -> "error")))
+        x => Ok(messageDeleted)
+      } recover {
+        case NoSuchProjectException(e) => BadRequest(messageNoSuchProject)
+        case _ => BadRequest(messageError)
       }
   }
 

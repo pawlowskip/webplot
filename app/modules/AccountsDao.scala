@@ -1,6 +1,7 @@
 package modules
 
-import models.{Project, Account}
+import models.{Account, Project}
+
 import scala.concurrent.Future
 
 trait AccountsDao {

@@ -1,12 +1,12 @@
 package models
 
 import java.awt.Color
-import play.api.data.validation.ValidationError
-import PlotType.PlotType
-import util.{Parser}
 
-import scala.util.Try
+import models.PlotType.PlotType
+import util.Parser
+
 import scala.language.postfixOps
+import scala.util.Try
 
 case class Plot(label: String,
                 plotDataType: String,
@@ -34,10 +34,10 @@ object PlotType extends Enumeration {
 }
 
 object Plot{
+  import play.api.libs.functional.syntax._
   import util.Parser._
   import util.Validation._
   import play.api.libs.json._
-  import play.api.libs.functional.syntax._
 
   implicit val plotReads: Reads[Plot] = (
         (__ \ "label").read[String] and

@@ -1,6 +1,7 @@
 package gnuplot
-import models._
 import java.awt.Color
+
+import models._
 
 
 private [gnuplot] object ScriptGenerator {
@@ -122,7 +123,7 @@ private [gnuplot] object ScriptGenerator {
 
   private def histogramPlots(plots: List[Plot]) = plots match {
     case Nil => ""
-    case _ => s"'${plots(0).dataFile}' using ${plots(0).using}:xtic(1) t col lc rgb ${color(plots(0).color)}" +
+    case _ => s"'${plots.head.dataFile}' using ${plots.head.using}:xtic(1) t col lc rgb ${color(plots.head.color)}" +
       (for(p <- plots.drop(1)) yield s"'' using ${p.using} title  col lc rgb ${color(p.color)}").mkString(", ", " , ", "\n")
   }
 
@@ -135,21 +136,20 @@ private [gnuplot] object ScriptGenerator {
 
   private def histogramBorder(g: Graph) = {
     g.histogramBorder match {
-      case (a, b) if a.endsWith("noborder")  => s"set style fill ${a}"
-      case (a, b) => s"set style fill ${a} rgb ${color(b)}"
+      case (a, b) if a.endsWith("noborder")  => s"set style fill $a"
+      case (a, b) => s"set style fill $a rgb ${color(b)}"
     }
   }
 
   private def setParametrization(params: List[(String, String, String)]): String =
     params match {
       case Nil => ""
-      case _ => {
+      case _ =>
         val dummy = params.map{ case (name, from, to) => name }.mkString("set dummy ", " ,", "\n")
         val parametric = params.map{
           case (name, from, to) => s"${range(name, from, to)}"
         }.mkString("set parametric\n", "\n", "\n")
         dummy + parametric
-      }
     }
 
   private def axis(axis: Axis) = {

@@ -1,16 +1,15 @@
 package gnuplot
 
 import java.io.File
-import java.net.URI
 import java.nio.file.Paths
+
 import akka.actor.ActorSystem
-import models.{Graph, Project, Page}
+import models.{Graph, Page, Project}
 import modules.Gnuplot
+import util.MyExecutionContext._
 import util.{Files, ProcessRunner}
 
 import scala.concurrent.Future
-import scala.io.{Source}
-import util.MyExecutionContext._
 
 class GnuplotService(val system: ActorSystem) extends Gnuplot{
 

@@ -1,18 +1,17 @@
 package dao
 
+import models.Account._
+import models.{Account, Project}
 import modules.AccountsDao
 import play.Logger
-import play.api.libs.json.{Json}
-import play.modules.reactivemongo.{ ReactiveMongoApi}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import reactivemongo.api.Cursor
-import reactivemongo.bson.{BSONObjectID, BSONDocument}
-import scala.concurrent.{Future, Promise}
-import scala.util.{Success, Failure}
-import models.{Project, Account}
-import models.Account._
+import play.api.libs.json.Json
+import play.modules.reactivemongo.ReactiveMongoApi
 import play.modules.reactivemongo.json._
 import play.modules.reactivemongo.json.collection._
+import reactivemongo.api.Cursor
+
+import scala.concurrent.Future
 
 case class NoSuchUserException(message: String) extends Exception(message)
 case class NoSuchProjectException(message: String) extends Exception(message)

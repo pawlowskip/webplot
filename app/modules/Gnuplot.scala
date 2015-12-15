@@ -1,7 +1,9 @@
 package modules
 
 import java.io.File
-import models.{Project, Page, Graph}
+
+import models.{Graph, Page, Project}
+
 import scala.concurrent.Future
 
 trait Gnuplot{

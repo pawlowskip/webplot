@@ -1,17 +1,16 @@
 package controllers
 
-
 import jp.t2v.lab.play2.auth.LoginLogout
-import models.{NormalUser, Account}
+import models.{Account, NormalUser}
 import modules.AccountsDao
 import play.Logger
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, Controller, Result}
 import play.api.libs.concurrent.Execution.Implicits._
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import play.api.mvc.{Action, Controller, Result}
+
+import scala.concurrent.Future
 
 class AuthenticationController(val messagesApi: MessagesApi,
                                val accountsDao: AccountsDao)

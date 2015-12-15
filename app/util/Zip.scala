@@ -1,10 +1,11 @@
 package util
 
 import java.io._
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-import scala.concurrent.Future
+import java.util.zip.{ZipEntry, ZipOutputStream}
+
 import util.MyExecutionContext._
+
+import scala.concurrent.Future
 
 object Zip {
   def zipFiles(outputPath: String, files: List[File]): Future[File] = {
@@ -13,7 +14,7 @@ object Zip {
     Future{
       for(input <- files){
         val fis = new FileInputStream(input)
-        val ze = new ZipEntry(input.getName())
+        val ze = new ZipEntry(input.getName)
         zipOut.putNextEntry(ze)
         val tmp = new Array[Byte](4*1024)
         var size = 0

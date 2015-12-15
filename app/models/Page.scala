@@ -1,6 +1,7 @@
 package models
 
 import util.Parser
+
 import scala.language.postfixOps
 
 case class Page(title: String,
@@ -13,11 +14,11 @@ case class Page(title: String,
                 graphRefs: List[GraphRef])
 
 object Page {
-  import util.Validation._
-  import util.Parser._
   import models.GraphRef._
-  import play.api.libs.json._
   import play.api.libs.functional.syntax._
+  import util.Parser._
+  import util.Validation._
+  import play.api.libs.json._
 
   implicit val pageReads: Reads[Page] = (
       (__ \ "title").read[String] and

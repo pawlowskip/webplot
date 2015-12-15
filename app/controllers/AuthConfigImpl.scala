@@ -1,14 +1,12 @@
 package controllers
 import jp.t2v.lab.play2.auth._
-import models.{Account, Role, Administrator, NormalUser}
+import models.{Account, Administrator, NormalUser, Role}
 import modules.AccountsDao
-import play.api.mvc.RequestHeader
 import play.api.mvc.Results._
-import play.api.mvc.Result
+import play.api.mvc.{RequestHeader, Result}
 
-import scala.concurrent.{Future, ExecutionContext}
-import scala.reflect.ClassTag
-import scala.reflect.classTag
+import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect.{ClassTag, classTag}
 
 
 trait AuthConfigImpl extends AuthConfig {

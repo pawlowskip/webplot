@@ -16,8 +16,8 @@ case class Account(username: String,
                    role: Role)
 
 object Account{
-  import play.api.libs.json._
   import play.api.libs.functional.syntax._
+  import play.api.libs.json._
 
   implicit val accountReads: Reads[Account] = (
     (__ \ "username").read[String] and

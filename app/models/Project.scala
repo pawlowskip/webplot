@@ -10,8 +10,8 @@ case class Project(name: String,
 object Project {
   import models.Graph._
   import models.Page._
-  import play.api.libs.json._
   import play.api.libs.functional.syntax._
+  import play.api.libs.json._
 
   implicit val projectReads: Reads[Project] = (
     (__ \ "name").read[String] and
