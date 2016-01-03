@@ -65,14 +65,19 @@ class AuthenticationController(val accountsDao: AccountsDao)
   }
 
   def authenticateRequest = Action.async { implicit request =>
-    loginForm.bindFromRequest.fold[Future[Result]](
-      formWithErrors => Future.successful(BadRequest(views.html.login("login", "Type username and password!"))),
-      { case (username, password) =>
-        (for {
+    def proccessForm(data: (String, String)) = (data match {
+      case (username, password) =>
+        for {
           account <- authenticate(username, password)
           result <- gotoLoginSucceeded(account.username)
-        } yield result).fallbackTo( Future.successful(BadRequest(views.html.login("login", "Incorrect login or password!"))) )
-      }
+        } yield result
+    }) fallbackTo {
+      Future.successful(BadRequest(views.html.login("login", "Incorrect login or password!")))
+    }
+
+    loginForm.bindFromRequest.fold[Future[Result]](
+      formWithErrors => Future.successful(BadRequest(views.html.login("login", "Type username and password!"))),
+      proccessForm
     )
   }
 

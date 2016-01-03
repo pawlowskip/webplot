@@ -22,9 +22,15 @@
                             @files = data
                             $scope.$apply()
 
-        @getFiles = () => $.get '/getFiles', @refreshFiles
+        @getFiles = () => $.get '/userFiles', @refreshFiles
 
-        @deleteFile = (f) => $.get '/deleteFile', { file: f.name }, () => @getFiles()
+        @deleteFile = (f) => $.ajax '/file' + '?' + $.param({file: f.name}),
+                                 type: 'DELETE'
+                                 dataType: 'html'
+                                 success: () => @getFiles()
+
+
+        ##$.get '/file', { file: f.name }, () => @getFiles()
 
         @downloadFile = (f) =>
                 ref = '/downloadFile?' + $.param({file: f.name})

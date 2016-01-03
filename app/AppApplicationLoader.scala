@@ -30,7 +30,7 @@ trait AppModule
   def actorSystem: ActorSystem
   def applicationLifecycle: DefaultApplicationLifecycle
 
-  lazy val reactiveMongoApi = new DefaultReactiveMongoApi(actorSystem, configuration, applicationLifecycle)
+  lazy val reactiveMongoApi = wire[DefaultReactiveMongoApi]
 
   // Define services bindings
   lazy val gnuplotService: Gnuplot = wire[GnuplotService]

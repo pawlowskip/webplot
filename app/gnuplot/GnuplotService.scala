@@ -13,8 +13,6 @@ import scala.concurrent.Future
 
 class GnuplotService(val system: ActorSystem) extends Gnuplot{
 
-  val processRunner = new ProcessRunner(system)
-
   sealed trait OS
   object Windows extends OS
   object Unix extends OS
@@ -43,7 +41,7 @@ class GnuplotService(val system: ActorSystem) extends Gnuplot{
     val commands = ScriptGenerator.generateScript(page, graphs ,output.getAbsolutePath)
     Files.writeToFile(script, commands)
     val command = s"""gnuplot $symbol${script.getAbsolutePath}$symbol"""
-    processRunner.run(command).map(x => output)
+    ProcessRunner.run(command).map(x => output)
   }
 
   def multiPageRender(project: Project, 

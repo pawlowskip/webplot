@@ -9,16 +9,16 @@ GET     /files                      controllers.AppController.filesPage
 
 POST    /graph                      controllers.AppController.drawSinglePlot
 POST    /generateProject            controllers.AppController.generateProject
-GET     /getProject                 controllers.AppController.getProject
+GET     /generatedProject           controllers.AppController.getProject
 
 POST    /upload                     controllers.AppController.upload
-GET     /getFiles                   controllers.AppController.userFiles
-GET     /deleteFile                 controllers.AppController.deleteFile(file)
+GET     /userFiles                  controllers.AppController.userFiles
+DELETE  /file                       controllers.AppController.deleteFile(file)
 GET     /downloadFile               controllers.AppController.downloadFile(file)
 
 GET     /getProjects                controllers.AppController.getUserProjects
 POST    /saveProject                controllers.AppController.saveProject
-GET     /deleteProject              controllers.AppController.deleteProject(projectName)
+DELETE  /project                    controllers.AppController.deleteProject(projectName)
 
 GET     /login                      controllers.AuthenticationController.login(mode = "login", error = "")
 GET     /logout                     controllers.AuthenticationController.logout

@@ -78,14 +78,6 @@ class AccountsDaoService(reactiveMongoApi: ReactiveMongoApi) extends AccountsDao
    */
   override def saveOrUpdateProject(project: Project) = {
     val updateProjectQuery = Json.obj("author" -> project.author, "name" -> project.name)
-//    lazy val isProjectExistsLazy: Future[Boolean] = isProjectExists(project.name, project.author)
-//
-//    isUserExists(project.author).filter(_ == true).map {
-//      x => isProjectExistsLazy.map {
-//        case true  => projects.update(query, project); ()
-//        case false => projects.insert(project); ()
-//      }
-//    }
 
     for {
       isUserExists <- isUserExists(project.author)

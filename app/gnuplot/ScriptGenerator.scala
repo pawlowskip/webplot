@@ -192,15 +192,6 @@ private [gnuplot] object ScriptGenerator {
     case _ => s""""#${Integer.toHexString(c.getRGB)}""""
   }
 
-//  {
-//    val (a, r, g, b) = (c.getAlpha, c.getRed, c.getGreen, c.getBlue)
-//
-//    a match {
-//      case 255 => s""""#${Integer.toHexString(c.getRGB).substring(2)}""""
-//      case _ => s""""#${Integer.toHexString(c.getRGB)}""""
-//    }
-//  }
-
   private def palette(gradient: List[Color]) = {
     val colorsDefinition = for {
       (c, n) <- gradient.zipWithIndex

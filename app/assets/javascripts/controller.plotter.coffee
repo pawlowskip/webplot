@@ -150,7 +150,7 @@
         @containerH = 0
 
         init = () =>
-            $.get '/getFiles', @refreshFiles
+            $.get '/userFiles', @refreshFiles
             $.get '/getProjects', @refreshProjects
             refreshUI()
             ## hidden pagination
@@ -400,7 +400,13 @@
                 alert("Cannot delete project!")
 
 
-        @removeProject = () => $.get '/deleteProject', { projectName: @project.name }, removeProjectCallback
+        @removeProject = () => $.ajax '/project' + '?' + $.param({projectName: @project.name}),
+                                    type: 'DELETE'
+                                    dataType: 'html'
+                                    success: removeProjectCallback
+
+
+        ##$.get '/project', { projectName: @project.name }, removeProjectCallback
 
         @changeProject = (projectName) =>
             list = @projectList
@@ -440,7 +446,7 @@
 
 
         @downloadFile = (f) =>
-            ref = '/getProject'
+            ref = '/generatedProject'
             $('#download').attr({target: '_blank', href  : ref})
             $('#download')[0].click()
 

@@ -5,7 +5,6 @@ import jp.t2v.lab.play2.auth.AuthElement
 import models.{NormalUser, Project}
 import modules.{AccountsDao, Gnuplot}
 import play.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
@@ -14,6 +13,7 @@ import util.{Files, Zip}
 
 import scala.concurrent.Future
 import scala.util._
+
 
 class AppController (val accountsDao: AccountsDao,
                      val gnuplot: Gnuplot)
@@ -63,20 +63,6 @@ class AppController (val accountsDao: AccountsDao,
       } recover {
         case _ => BadRequest(messageMissingFiles)
       }
-
-//      request.body.file("files[]").map { file =>
-//        Future {
-//          file.ref.moveTo(Files.getOrCreateUserFile(loggedIn, file.filename))
-//        }(util.MyExecutionContext.ec)
-//          .map(x => Ok(Json.toJson(Map("status" -> "ok"))))
-//          .andThen {
-//            case Success(_) => Logger.debug(s"Uploaded file ${file.filename} !")
-//            case Failure(e) => Logger.debug(s"Upload failed! Error:$e")
-//          }
-//
-//      }.getOrElse {
-//        Future.successful(BadRequest("Missing files"))
-//      }
   }
 
   def userFiles = AsyncStack(AuthorityKey -> NormalUser) {
@@ -105,14 +91,6 @@ class AppController (val accountsDao: AccountsDao,
       } recover {
         case _ => BadRequest(messageError)
       }
-
-//      Files.deleteFile(loggedIn, fileName).map { done =>
-//        Ok(Json.toJson(Map("status" -> "deleted")))
-//      } fallbackTo {
-//        Future.successful{
-//          BadRequest(Json.toJson(Map("status" -> "error")))
-//        }
-//      }
   }
 
   def downloadFile(fileName: String) = AsyncStack(AuthorityKey -> NormalUser){

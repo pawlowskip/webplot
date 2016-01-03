@@ -37,9 +37,6 @@ object Files {
         DataFile(file.getName, file.length, text)
       }
 
-    //getUserFiles(account).flatMap { list => 
-    //  Future.traverse(list)(toDataFile)
-    //}
     for {
       files <- getUserFiles(account)
       dataFiles <- Future.traverse(files)(toDataFile)
@@ -47,13 +44,6 @@ object Files {
   }
   
   def getUserFile(account: Account, fileName: String): Future[File] = {
-//    getUserFiles(account).map {
-//      _.find( _.getName == fileName ) match {
-//        case Some(file) => file
-//        case None => throw new NoSuchFileException(s"File $fileName doesn't exist!")
-//      }
-//    }
-    
     for {
       files <- getUserFiles(account)
     } yield files.find(_.getName == fileName) match {
@@ -63,16 +53,6 @@ object Files {
   }
 
   def deleteFile(account: Account, fileName: String): Future[Boolean] = {
-//    for {
-//      list <- getUserFiles(account)
-//      file = list.find{_.getName == fileName }
-//      result = file match {
-//        case Some(file) => file.delete()
-//        case None => throw new NoSuchFileException(s"File $fileName doesn't exist!")
-//      }
-//      if result == true
-//    } yield ()
-
     for {
       list <- getUserFiles(account)
       file = list.find(_.getName == fileName)
@@ -119,27 +99,6 @@ object Files {
   }
 
   def transformFilePaths(account: Account, project: Project): Future[Project] = {
-
-//    getUserFiles(account).map{
-//      files => {
-//        val correctedGraphs = project.graphs.map {
-//          graph => {
-//            val newPlots = graph.plots.map{
-//              plot => plot.plotDataType match {
-//                case "f" => plot
-//                case "d" => {
-//                  val correctPath = files.find(_.getName == plot.dataFile)
-//                  plot.copy(dataFile = correctPath.get.getAbsolutePath)
-//                }
-//              }
-//            }
-//            graph.copy(plots = newPlots)
-//          }
-//        }
-//        project.copy(graphs = correctedGraphs)
-//      }
-//    }
-
     def transformPlotDataPath(plot: Plot, files: List[File]) = plot.plotDataType match {
       case "f" => plot
       case "d" =>
