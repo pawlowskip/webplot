@@ -14,14 +14,14 @@ import scala.util.Success
 
 class ProcessRunner(system: ActorSystem) {
 
-  def withTimeout[T](f: Future[T])(implicit duration: FiniteDuration, system: ActorSystem): Future[T] = {
+  private def withTimeout[T](f: Future[T])(implicit duration: FiniteDuration, system: ActorSystem): Future[T] = {
     val timeout = after(duration, system.scheduler)(Future.failed(new TimeoutException))
     Future firstCompletedOf Seq(f, timeout)
   }
 
   def run(command: String): Future[Int] = {
     val process = Process(command).run()
-    val running: Future[Int] = Future {
+    val result: Future[Int] = Future {
       blocking {
         process.exitValue()
       }
@@ -30,7 +30,7 @@ class ProcessRunner(system: ActorSystem) {
     implicit val timeout = 200 millis
     implicit val sys = system
 
-    val combinedFuture = withTimeout(running)
+    val combinedFuture = withTimeout(result)
 
     combinedFuture onFailure  {
       case e: TimeoutException => process.destroy()
