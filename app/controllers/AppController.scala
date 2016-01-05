@@ -1,5 +1,6 @@
 package controllers
 
+import java.util.concurrent.TimeoutException
 import dao.NoSuchProjectException
 import jp.t2v.lab.play2.auth.AuthElement
 import models.{NormalUser, Project}
@@ -120,6 +121,7 @@ class AppController (val accountsDao: AccountsDao,
 
       result.andThen{
         case Success(_) => Logger.debug("Graph created correctly.")
+        case Failure(e: TimeoutException) => Logger.info("Cannot create graph - Timeout")
         case Failure(e) => Logger.error(s"Cannot create graph: ${e.getStackTrace.mkString("\n")}")
       } fallbackTo {
         Future.successful(BadRequest(messageInvalidJson))
@@ -143,6 +145,7 @@ class AppController (val accountsDao: AccountsDao,
 
       result.andThen {
         case Success(_) => Logger.debug("Graph created correctly.")
+        case Failure(e: TimeoutException) => Logger.info("Cannot create graph - Timeout")
         case Failure(e) => Logger.error(s"Cannot create graph: ${e.getStackTrace.mkString("\n")}")
       } fallbackTo {
         Future.successful(BadRequest(messageInvalidJson))

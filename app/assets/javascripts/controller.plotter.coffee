@@ -333,7 +333,7 @@
                         img.src  = 'data:image/svg+xml;base64,' + utf8_to_b64(xml)
                     ,
                     (error) =>
-                        alert "Unable to create graph" + error + "\n\n"
+                        alert "Unable to create graph" + "\n\n"
                     )
 
         @resizeCanvas = (width, height, id) ->
@@ -453,7 +453,7 @@
         @generateProject = () =>
             requestProjectGen().then(
                 (data) => @downloadFile(), 
-                (error) => alert "Unable to create project" + error + "\n\n"
+                (error) => alert "Unable to create project" + "\n\n"
                 )
 
         requestProjectSave = () =>
@@ -466,7 +466,7 @@
             deferred.promise
 
         @saveProject = () =>
-            requestProjectSave().then((data) => alert "Project saved!", (error) => alert "Unable to save project" + error + "\n\n")
+            requestProjectSave().then((data) => alert "Project saved!", (error) => alert "Unable to save project" + "\n\n")
 
         @clearGraphRefs = (index) =>
             draggables = $('.draggable' + index)

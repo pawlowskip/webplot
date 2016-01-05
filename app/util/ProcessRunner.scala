@@ -1,19 +1,41 @@
 package util
 
+import java.util.concurrent.TimeoutException
+
+import akka.actor.ActorSystem
+import akka.pattern.after
 import util.MyExecutionContext._
-import scala.concurrent.{Future, Promise, blocking}
+
+import scala.concurrent.duration._
+import scala.concurrent.{Future, blocking}
+import scala.language.postfixOps
 import scala.sys.process.Process
+import scala.util.Success
 
-object ProcessRunner {
+class ProcessRunner(system: ActorSystem) {
 
-  def run(command: String): Future[Int] = Future {
+  def withTimeout[T](f: Future[T])(implicit duration: FiniteDuration, system: ActorSystem): Future[T] = {
+    val timeout = after(duration, system.scheduler)(Future.failed(new TimeoutException))
+    Future firstCompletedOf Seq(f, timeout)
+  }
+
+  def run(command: String): Future[Int] = {
+    val process = Process(command).run()
+    val running: Future[Int] = Future {
       blocking {
-        val process = Process(command).run()
-        process.exitValue match {
-          case 0 => 0
-          case _ => throw new Error("Syntax Exception")
-        }
+        process.exitValue()
       }
+    }(GnuplotExecutionContext.ec)
+
+    implicit val timeout = 200 millis
+    implicit val sys = system
+
+    val combinedFuture = withTimeout(running)
+
+    combinedFuture onFailure  {
+      case e: TimeoutException => process.destroy()
     }
+    combinedFuture
+  }
 
 }
