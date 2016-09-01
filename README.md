@@ -5,3 +5,5 @@ Web service backed by Play with authentication and authorization. Client app is 
 Macwire is used for DI, and persistence layer is backed by MongoDB.
 
 Graph plotting is executing by Gnuplot (require installed Gnuplot 5.01).
+
+![Alt text](/screenshot/histogram.png?raw=true "Screenshot")
